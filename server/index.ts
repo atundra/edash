@@ -1,19 +1,7 @@
-import { geocodeList } from "./geocoder";
-import { getMapUrlForClusters } from "./gmaps";
-import { trackLastPosList } from "./track";
-import { filterOutNulls, groupLatLonByDistance } from "./utils";
-import { CLUSTER_POINTS_MAX_DISTANCE_M } from "./config";
+import express from "express";
+import { router as apiRouter } from "./api";
+import { PORT } from "./config";
 
-const tracks: string[] = [];
-
-const main = async () => {
-  trackLastPosList(tracks)
-    .then(filterOutNulls)
-    .then(geocodeList)
-    .then(filterOutNulls)
-    .then(groupLatLonByDistance(CLUSTER_POINTS_MAX_DISTANCE_M))
-    .then(getMapUrlForClusters)
-    .then(console.log);
-};
-
-main();
+const app = express();
+app.use("/api", apiRouter);
+app.listen(PORT, () => console.log(`Server started on ${PORT} port`));
