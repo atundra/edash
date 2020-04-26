@@ -4,7 +4,7 @@ import path from "path";
 import { convertToBMP as convertImageToBMP } from "./image";
 import { exists as isFileExists, load as loadFile } from "./file";
 import { PathLike } from "fs";
-import { IMAGE_MAX_AGE } from "./config";
+import { IMAGE_MAX_AGE, TRACKS } from "./config";
 
 let imageLoadedTs = 0;
 
@@ -26,7 +26,7 @@ const imageHanlder: RequestHandler = async (req, res, next) => {
   const imageNameBMP = path.resolve(__dirname, "image_cache/lastimage.bmp");
 
   if (await shouldLoadNewImage(imageNamePNG)) {
-    const url = await generateMapUrl([]);
+    const url = await generateMapUrl(TRACKS);
     await loadFile({ url, output: imageNamePNG });
     console.log("Image loaded");
 
