@@ -45,4 +45,26 @@ const imageHanlder: RequestHandler = async (req, res, next) => {
   });
 };
 
-export const router = Router().get("/image", imageHanlder);
+const randomHandler: RequestHandler = async (req, res, next) => {
+  const imageNameJPG = path.resolve(__dirname, "image_cache/rand.jpg");
+  const imageNameBMP = path.resolve(__dirname, "image_cache/rand.bmp");
+
+  const url = "https://picsum.photos/640/384.jpg";
+  await loadFile({ url, output: imageNameJPG });
+  console.log("Image loaded");
+
+  await convertImageToBMP(imageNameJPG, imageNameBMP);
+  console.log("Image converted");
+
+  res.sendFile(imageNameBMP, null, (err) => {
+    if (err) {
+      next(err);
+    } else {
+      console.log("File sent");
+    }
+  });
+};
+
+export const router = Router()
+  .get("/image", imageHanlder)
+  .get("/random", randomHandler);
