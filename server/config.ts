@@ -15,3 +15,5 @@ export const CLUSTER_POINTS_MAX_DISTANCE_M = 1000 * 100;
 
 export const PORT =
   process.env.PORT !== undefined ? parseInt(process.env.PORT, 10) : 8000;
+
+export const IMAGE_MAX_AGE = 1000 * 60 * 60 * 6;

@@ -2,7 +2,7 @@ import fs, { PathLike } from "fs";
 import axios, { Method, AxiosPromise } from "axios";
 import { Stream } from "stream";
 
-export const exists = async (imageName: string): Promise<boolean> =>
+export const exists = async (imageName: PathLike): Promise<boolean> =>
   new Promise((resolve, reject) => {
     fs.access(imageName, fs.constants.F_OK, (err) => resolve(err === null));
   });
