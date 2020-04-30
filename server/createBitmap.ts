@@ -37,24 +37,27 @@ const toMonochrome = (rgba: RGBA): RGBA => {
   }
 };
 
-const formatByte = (byte: number) => byte.toString(16).padStart(2, "0");
+const formatByte = (byte: number) =>
+  byte.toString(16).padStart(2, "0").toUpperCase();
 
 png.on("parsed", function () {
   const { data, height, width } = png;
   const bytePerPixel = 4;
-  const inBytePerOutByte = 8;
-  for (
-    let index = 0;
-    index < data.length;
-    index += bytePerPixel * inBytePerOutByte
-  ) {
-    let outByte = 0;
-    for (let inByteIndex = 0; inByteIndex < inBytePerOutByte; inByteIndex++) {
-      const rgba = getRGBA(data, index + inByteIndex);
+  const pixelsPerByte = 8;
+  const loopStep = bytePerPixel * pixelsPerByte;
+  // Iterating over blocks of 8 pixel (every pixel is 4 bytes)
+  for (let blockIndex = 0; blockIndex < data.length; blockIndex += loopStep) {
+    let blockByte = 0;
+    for (
+      let blockPixelIndex = 0;
+      blockPixelIndex < pixelsPerByte;
+      blockPixelIndex++
+    ) {
+      const rgba = getRGBA(data, blockIndex + blockPixelIndex * bytePerPixel);
       const bitVal = isBlackish(rgba) ? 1 : 0;
-      outByte |= bitVal << inByteIndex;
+      blockByte |= bitVal << (pixelsPerByte - 1 - blockPixelIndex);
     }
-    dst.write("0x" + formatByte(outByte) + ",\n");
+    dst.write("0X" + formatByte(blockByte) + ",\n");
   }
 
   // for (let y = 0; y < height; y++) {
