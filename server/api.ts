@@ -9,8 +9,8 @@ import { IMAGE_MAX_AGE, TRACKS } from "./config";
 let imageLoadedTs = 0;
 
 const shouldLoadNewImage = async (oldImage: PathLike): Promise<boolean> => {
-  const bmpExists = await isFileExists(oldImage);
-  if (!bmpExists) {
+  const imageExists = await isFileExists(oldImage);
+  if (!imageExists) {
     return true;
   }
 
@@ -21,7 +21,27 @@ const shouldLoadNewImage = async (oldImage: PathLike): Promise<boolean> => {
   return false;
 };
 
-const imageHanlder: RequestHandler = async (req, res, next) => {
+const pngHanlder: RequestHandler = async (req, res, next) => {
+  const imageNamePNG = path.resolve(__dirname, "image_cache/lastimage.png");
+
+  if (await shouldLoadNewImage(imageNamePNG)) {
+    const url = await generateMapUrl(TRACKS);
+    await loadFile({ url, output: imageNamePNG });
+    console.log("Image loaded");
+
+    imageLoadedTs = Date.now();
+  }
+
+  res.sendFile(imageNamePNG, null, (err) => {
+    if (err) {
+      next(err);
+    } else {
+      console.log("File sent");
+    }
+  });
+};
+
+const bmpHandler: RequestHandler = async (req, res, next) => {
   const imageNamePNG = path.resolve(__dirname, "image_cache/lastimage.png");
   const imageNameBMP = path.resolve(__dirname, "image_cache/lastimage.bmp");
 
@@ -66,5 +86,6 @@ const randomHandler: RequestHandler = async (req, res, next) => {
 };
 
 export const router = Router()
-  .get("/image", imageHanlder)
+  .get("/image.png", pngHanlder)
+  .get("/image.bmp", bmpHandler)
   .get("/random", randomHandler);
