@@ -7,9 +7,11 @@
 
 GxEPD2_3C<GxEPD2_750c, GxEPD2_750c::HEIGHT> display(GxEPD2_750c(/*CS=5*/ SS, /*DC=*/17, /*RST=*/16, /*BUSY=*/4));
 
-#include "bitmaps/Bitmaps640x384.h" // 7.5"  b/w
+// #include "bitmaps/Bitmaps640x384.h" // 7.5"  b/w
+#include "bitmaps.h"
 
-const unsigned char *bitmaps[] = {Bitmap640x384_1, Bitmap640x384_2};
+// const unsigned char *bitmaps[] = {Bitmap640x384_1, Bitmap640x384_2};
+const unsigned char *bitmaps[] = {Bitmap640x384_1, Bitmap640x384_2, Bitmap640x384_3};
 const uint16_t bitmapsSize = sizeof(bitmaps) / sizeof(char *);
 uint16_t currentBitmapIndex = 0;
 
@@ -25,12 +27,23 @@ void setup()
 
 void loop()
 {
+  Serial.println("Loop start");
+  Serial.print("Draw bitmap ");
+  Serial.println(currentBitmapIndex);
+
+  Serial.println("First page start");
   display.firstPage();
+  Serial.println("First page end");
+
   do
   {
+    Serial.println("Fill screen");
     display.fillScreen(GxEPD_WHITE);
-    display.drawInvertedBitmap(0, 0, bitmaps[currentBitmapIndex], display.epd2.WIDTH, display.epd2.HEIGHT, GxEPD_BLACK);
+    Serial.println("Draw inverted bitmap");
+    // display.drawInvertedBitmap(0, 0, bitmaps[currentBitmapIndex], display.epd2.WIDTH, display.epd2.HEIGHT, GxEPD_BLACK);
   } while (display.nextPage());
+
+  Serial.println("Power off");
   display.powerOff();
   delay(2000);
 
