@@ -3,8 +3,9 @@ import { generate as generateMapUrl } from "./mapUrl";
 import path from "path";
 import { convertToBMP as convertImageToBMP } from "./image";
 import { exists as isFileExists, load as loadFile } from "./file";
-import { PathLike } from "fs";
+import { PathLike, createReadStream } from "fs";
 import { IMAGE_MAX_AGE, TRACKS } from "./config";
+import { pngStreamToBitmap } from "./createBitmap";
 
 let imageLoadedTs = 0;
 
@@ -21,16 +22,23 @@ const shouldLoadNewImage = async (oldImage: PathLike): Promise<boolean> => {
   return false;
 };
 
+const updateMapImageIfNeeded = async (filename: string): Promise<boolean> => {
+  const needToUpdate = await shouldLoadNewImage(filename);
+  if (!needToUpdate) {
+    return false;
+  }
+
+  const url = await generateMapUrl(TRACKS);
+  await loadFile({ url, output: filename });
+  console.log("Image loaded");
+
+  imageLoadedTs = Date.now();
+  return true;
+};
+
 const pngHanlder: RequestHandler = async (req, res, next) => {
   const imageNamePNG = path.resolve(__dirname, "image_cache/lastimage.png");
-
-  if (await shouldLoadNewImage(imageNamePNG)) {
-    const url = await generateMapUrl(TRACKS);
-    await loadFile({ url, output: imageNamePNG });
-    console.log("Image loaded");
-
-    imageLoadedTs = Date.now();
-  }
+  await updateMapImageIfNeeded(imageNamePNG);
 
   res.sendFile(imageNamePNG, null, (err) => {
     if (err) {
@@ -45,15 +53,10 @@ const bmpHandler: RequestHandler = async (req, res, next) => {
   const imageNamePNG = path.resolve(__dirname, "image_cache/lastimage.png");
   const imageNameBMP = path.resolve(__dirname, "image_cache/lastimage.bmp");
 
-  if (await shouldLoadNewImage(imageNamePNG)) {
-    const url = await generateMapUrl(TRACKS);
-    await loadFile({ url, output: imageNamePNG });
-    console.log("Image loaded");
-
+  const updated = await updateMapImageIfNeeded(imageNamePNG);
+  if (updated) {
     await convertImageToBMP(imageNamePNG, imageNameBMP);
     console.log("Image converted");
-
-    imageLoadedTs = Date.now();
   }
 
   res.sendFile(imageNameBMP, null, (err) => {
@@ -63,6 +66,20 @@ const bmpHandler: RequestHandler = async (req, res, next) => {
       console.log("File sent");
     }
   });
+};
+
+const binHandler: RequestHandler = async (req, res, next) => {
+  const imageNamePNG = path.resolve(__dirname, "image_cache/lastimage.png");
+  await updateMapImageIfNeeded(imageNamePNG);
+  const bitmapBuffer = await pngStreamToBitmap(createReadStream(imageNamePNG));
+  res.send(bitmapBuffer);
+  // res.sendFile(imageNamePNG, null, (err) => {
+  //   if (err) {
+  //     next(err);
+  //   } else {
+  //     console.log("File sent");
+  //   }
+  // });
 };
 
 const randomHandler: RequestHandler = async (req, res, next) => {
@@ -86,6 +103,7 @@ const randomHandler: RequestHandler = async (req, res, next) => {
 };
 
 export const router = Router()
+  .get("/image.bin", binHandler)
   .get("/image.png", pngHanlder)
   .get("/image.bmp", bmpHandler)
   .get("/random", randomHandler);
