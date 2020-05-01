@@ -1,3 +1,4 @@
+import {Page} from 'puppeteer';
 import { Router, RequestHandler } from "express";
 import { generate as generateMapUrl } from "./mapUrl";
 import path from "path";
@@ -6,6 +7,7 @@ import { exists as isFileExists, load as loadFile } from "./file";
 import { PathLike, createReadStream } from "fs";
 import { IMAGE_MAX_AGE, TRACKS } from "./config";
 import { pngStreamToBitmap } from "./createBitmap";
+import * as browsermanager from './browsermanager';
 
 let imageLoadedTs = 0;
 
@@ -102,8 +104,50 @@ const randomHandler: RequestHandler = async (req, res, next) => {
   });
 };
 
+const waitForPageLoad = async (page: Page) => {
+  const readyState = await page.evaluate(() => document.readyState);
+  
+  if (readyState !== 'complete') {
+    return new Promise(resolve => page.once('load', resolve));
+  }
+}
+
+const DEFAULT_WIDTH = 800;
+const DEFAULT_HEIGHT = 600;
+
+const headlessHandler: RequestHandler = async (req, res, next) => {
+  const width = Number(req.query.width) || DEFAULT_WIDTH;
+  const height = Number(req.query.heigh) || DEFAULT_HEIGHT;
+
+  const imagePath = path.resolve(__dirname, `image_cache/headless_${width}_${height}.png`);
+
+  const browser = await browsermanager.getBrowser();
+  const page = await browser.newPage();
+
+  await page.setViewport({
+    width,
+    height
+  });
+
+  page.setContent('<h1>Hello</h1>');
+
+  await waitForPageLoad(page);
+  
+  await page.screenshot({path: imagePath});
+  page.close();  
+
+  res.sendFile(imagePath, null, (err) => {
+    if (err) {
+      next(err);
+    } else {
+      console.log("File sent");
+    }
+  });
+};
+
 export const router = Router()
   .get("/image.bin", binHandler)
   .get("/image.png", pngHanlder)
   .get("/image.bmp", bmpHandler)
-  .get("/random", randomHandler);
+  .get("/random", randomHandler)
+  .get('/headless', headlessHandler);

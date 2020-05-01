@@ -101,8 +101,12 @@ const getAxiosResponseData = (res: AxiosResponse) => res.data;
 export const getDataLoader = <RT>(): GetType<RT> => (url, config) =>
   axios.get(url, config).then(getAxiosResponseData);
 
-export const filterOutNulls = <T>(items: T[]): NonNullable<T>[] =>
-  items.filter((x) => x !== null) as NonNullable<T>[];
+
+const isNotNull = <T>(item: T | null): item is T =>
+  item !== null;
+
+export const filterOutNulls = <T>(items: Array<T | null>): T[] =>
+  items.filter(isNotNull);
 
 const sum = (a: number, b: number) => a + b;
 
