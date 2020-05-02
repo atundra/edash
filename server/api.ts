@@ -75,13 +75,6 @@ const binHandler: RequestHandler = async (req, res, next) => {
   await updateMapImageIfNeeded(imageNamePNG);
   const bitmapBuffer = await pngStreamToBitmap(createReadStream(imageNamePNG));
   res.send(bitmapBuffer);
-  // res.sendFile(imageNamePNG, null, (err) => {
-  //   if (err) {
-  //     next(err);
-  //   } else {
-  //     console.log("File sent");
-  //   }
-  // });
 };
 
 const randomHandler: RequestHandler = async (req, res, next) => {
