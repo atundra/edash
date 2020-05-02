@@ -1,12 +1,12 @@
 import React from 'react';
-import {style} from 'typestyle';
+import { style } from 'typestyle';
 
 import { WidgetOptions } from '.';
 
 type Props = {
-  widgetOptions: WidgetOptions[]
+  widgetOptions: WidgetOptions[];
   renderedWidgets: React.ReactNode[];
-}
+};
 
 const styles = {
   gridContainer: style({
@@ -14,9 +14,9 @@ const styles = {
     gridTemplateColumns: 'repeat(16, 1fr)',
     gridTemplateRows: 'repeat(12, 1fr)',
     gap: '1px 1px',
-    height: '100%'
-  })
-}
+    height: '100%',
+  }),
+};
 
 const Layout = ({ widgetOptions, renderedWidgets }: Props) => (
   <div className={styles.gridContainer}>
@@ -27,13 +27,13 @@ const Layout = ({ widgetOptions, renderedWidgets }: Props) => (
           gridColumnStart: position.column,
           gridColumnEnd: position.column + position.colspan,
           gridRowStart: position.row,
-          gridRowEnd: position.row + position.rowspan
+          gridRowEnd: position.row + position.rowspan,
         }}
       >
         {renderedWidgets[i]}
       </div>
     ))}
   </div>
-)
+);
 
 export default Layout;

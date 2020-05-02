@@ -1,6 +1,6 @@
-import { createUrl } from "./utils";
-import { GMAPS_STATIC_API, GMAPS_API_KEY } from "./config";
-import { LatLon } from "./geocoder/types";
+import { createUrl } from './utils';
+import { GMAPS_STATIC_API, GMAPS_API_KEY } from './config';
+import { LatLon } from './geocoder/types';
 
 const buildGmapsParams = (
   params: Record<string, string | null>,
@@ -8,43 +8,43 @@ const buildGmapsParams = (
 ) =>
   Object.entries(params)
     .filter((entry) => entry.every((item) => item !== null))
-    .map((entry) => entry.join(":"))
+    .map((entry) => entry.join(':'))
     .concat(value ? [value] : [])
-    .join("|");
+    .join('|');
 
 const getDefaultConfig = () => ({
-  size: "640x384",
+  size: '640x384',
   key: GMAPS_API_KEY,
   style: [
     buildGmapsParams({
-      feature: "administrative",
-      element: "labels",
-      visibility: "off",
+      feature: 'administrative',
+      element: 'labels',
+      visibility: 'off',
     }),
     buildGmapsParams({
-      feature: "administrative.province",
-      element: "geometry.stroke",
-      visibility: "off",
+      feature: 'administrative.province',
+      element: 'geometry.stroke',
+      visibility: 'off',
     }),
     buildGmapsParams({
-      feature: "administrative.country",
-      element: "geometry.stroke",
-      color: "0x000000",
+      feature: 'administrative.country',
+      element: 'geometry.stroke',
+      color: '0x000000',
     }),
     buildGmapsParams({
-      feature: "water",
-      element: "geometry",
-      color: "0x000000",
+      feature: 'water',
+      element: 'geometry',
+      color: '0x000000',
     }),
     buildGmapsParams({
-      feature: "landscape",
-      element: "geometry",
-      color: "0xFFFFFF",
+      feature: 'landscape',
+      element: 'geometry',
+      color: '0xFFFFFF',
     }),
     buildGmapsParams({
-      feature: "water",
-      element: "labels",
-      visibility: "off",
+      feature: 'water',
+      element: 'labels',
+      visibility: 'off',
     }),
   ],
 });
@@ -61,15 +61,15 @@ export const getMapUrl = (markers: Marker[]) =>
     markers: markers.map((marker) =>
       buildGmapsParams(
         {
-          color: marker.color ?? "black",
+          color: marker.color ?? 'black',
         },
-        Array.isArray(marker.pos) ? marker.pos.join(",") : marker.pos
+        Array.isArray(marker.pos) ? marker.pos.join(',') : marker.pos
       )
     ),
   });
 
 const getClusterLabel = (count: number) =>
-  count > 9 ? "L" : count > 1 ? String(count) : null;
+  count > 9 ? 'L' : count > 1 ? String(count) : null;
 
 export const getMapUrlForClusters = (
   clusters: { pos: LatLon; count: number }[]
@@ -79,10 +79,10 @@ export const getMapUrlForClusters = (
     markers: clusters.map(({ pos, count }) =>
       buildGmapsParams(
         {
-          color: "0xFF0000",
+          color: '0xFF0000',
           label: getClusterLabel(count),
         },
-        pos.join(",")
+        pos.join(',')
       )
     ),
   });

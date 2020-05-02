@@ -13,17 +13,17 @@ type WidgetPosition = {
 };
 
 export type WidgetOptions = {
-  id: keyof typeof WIDGETS_REGISTRY,
-  position: WidgetPosition,
+  id: keyof typeof WIDGETS_REGISTRY;
+  position: WidgetPosition;
   // TODO: Add an ability to pass widget options from endpoint
-  options?: {}
+  options?: {};
 };
 
 type RenderOptions = {
-  widgets: WidgetOptions[]
-}
+  widgets: WidgetOptions[];
+};
 
-const renderPage = ({ body, css }: { body: string, css: string }) => `
+const renderPage = ({ body, css }: { body: string; css: string }) => `
 <!DOCTYPE html>
 <html>
 <head>
@@ -40,7 +40,7 @@ const renderPage = ({ body, css }: { body: string, css: string }) => `
 
 export default class Renderer {
   static renderWidgets(options: RenderOptions) {
-    const widgetDataPromises = options.widgets.map(async widgetConfig => {
+    const widgetDataPromises = options.widgets.map(async (widgetConfig) => {
       const widget = WIDGETS_REGISTRY[widgetConfig.id];
 
       try {
@@ -48,12 +48,15 @@ export default class Renderer {
 
         return widget.render(widgetData);
       } catch (error) {
-        console.error(`Error while rendering widget ${widgetConfig.id}\n`, error);
+        console.error(
+          `Error while rendering widget ${widgetConfig.id}\n`,
+          error
+        );
 
         if (widget.renderFallback) {
           return widget.renderFallback(error);
         }
-        
+
         return null;
       }
     });
@@ -63,11 +66,14 @@ export default class Renderer {
 
   static async render(options: RenderOptions) {
     const renderedWidgets = await Renderer.renderWidgets(options);
-    
-    const layout = React.createElement(Layout, { widgetOptions: options.widgets, renderedWidgets });
+
+    const layout = React.createElement(Layout, {
+      widgetOptions: options.widgets,
+      renderedWidgets,
+    });
     const body = ReactDOMServer.renderToStaticMarkup(layout);
     const css = getStyles();
 
-    return renderPage({ body, css })
+    return renderPage({ body, css });
   }
 }

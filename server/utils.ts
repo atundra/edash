@@ -1,5 +1,5 @@
-import axios, { AxiosResponse, AxiosRequestConfig } from "axios";
-import { LatLon } from "./geocoder/types";
+import axios, { AxiosResponse, AxiosRequestConfig } from 'axios';
+import { LatLon } from './geocoder/types';
 
 type Value = string | number | boolean | undefined | null;
 
@@ -8,7 +8,7 @@ const URL_REGEXP = /^(.+?)(\?.+?)?(#.+)?$/;
 function encodeQueryValue(value?: Value): string {
   return value !== null && value !== undefined
     ? encodeURIComponent(String(value))
-    : "";
+    : '';
 }
 
 export function serializeQueryData(
@@ -19,24 +19,24 @@ export function serializeQueryData(
       Array.isArray(params[key])
         ? (params[key] as Value[])
             .map((value) => `${key}=${encodeQueryValue(value)}`)
-            .join("&")
+            .join('&')
         : `${key}=${encodeQueryValue(params[key] as Value)}`
     )
-    .join("&");
+    .join('&');
 }
 
 type QueryData = {
   [key: string]: string | string[];
 };
 
-export function deserializeQueryData(query = ""): QueryData {
+export function deserializeQueryData(query = ''): QueryData {
   return query
-    .split("&")
-    .map((kv: string) => kv.split("="))
+    .split('&')
+    .map((kv: string) => kv.split('='))
     .reduce((next, [key, value]) => {
       let currentValue = next[key];
 
-      if (typeof currentValue === "string") {
+      if (typeof currentValue === 'string') {
         next[key] = [currentValue];
         currentValue = next[key];
       }
@@ -79,7 +79,7 @@ export function createUrl(baseUrl: string, params = {}): string {
           }
         : params;
 
-    return `${base}?${serializeQueryData(queryData)}${hash || ""}`;
+    return `${base}?${serializeQueryData(queryData)}${hash || ''}`;
   }
 
   return `?${serializeQueryData(params)}`;
@@ -101,9 +101,7 @@ const getAxiosResponseData = (res: AxiosResponse) => res.data;
 export const getDataLoader = <RT>(): GetType<RT> => (url, config) =>
   axios.get(url, config).then(getAxiosResponseData);
 
-
-const isNotNull = <T>(item: T | null): item is T =>
-  item !== null;
+const isNotNull = <T>(item: T | null): item is T => item !== null;
 
 export const filterOutNulls = <T>(items: Array<T | null>): T[] =>
   items.filter(isNotNull);

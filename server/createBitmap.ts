@@ -1,6 +1,6 @@
-import fs from "fs";
-import { PNG } from "pngjs";
-import { Buffer } from "buffer";
+import fs from 'fs';
+import { PNG } from 'pngjs';
+import { Buffer } from 'buffer';
 
 type RGBA = [number, number, number, number];
 
@@ -32,7 +32,7 @@ const toMonochrome = (rgba: RGBA): RGBA => {
 };
 
 const formatByte = (byte: number) =>
-  byte.toString(16).padStart(2, "0").toUpperCase();
+  byte.toString(16).padStart(2, '0').toUpperCase();
 
 export const pngStreamToBitmap = (input: fs.ReadStream): Promise<Buffer> =>
   new Promise((resolve, reject) => {
@@ -40,9 +40,9 @@ export const pngStreamToBitmap = (input: fs.ReadStream): Promise<Buffer> =>
       filterType: -1,
     });
 
-    png.on("error", (err) => reject(err));
+    png.on('error', (err) => reject(err));
 
-    png.on("parsed", (data) => {
+    png.on('parsed', (data) => {
       const { height, width } = png;
 
       const bytePerPixel = 4;
