@@ -36,26 +36,23 @@ void drawBitmap(int16_t x, int16_t y, const uint8_t bitmap[], int16_t w, int16_t
 char ssid[] = "ESP32NET";
 char pass[] = "PhFy9KKreeFbR4jMCzHmDDNx";
 
-int status = WL_IDLE_STATUS;
-IPAddress server(188, 226, 159, 87);
-
-WiFiClient client;
-
-void setup()
+bool connectWifi()
 {
-  Serial.begin(115200);
+  Serial.println("Connect Wifi");
+  Serial.print("WiFi.getAutoConnect()=");
+  Serial.println(WiFi.getAutoConnect());
+  Serial.print("WiFi.SSID()=");
+  Serial.println(WiFi.SSID());
+  Serial.print("ESP Board MAC Address:  ");
+  Serial.println(WiFi.macAddress());
 
-  if (!WiFi.getAutoConnect() || (WiFi.getMode() != WIFI_STA) || ((WiFi.SSID() != ssid)))
+  if (WiFi.getMode() != WIFI_STA)
   {
-    Serial.println();
-    Serial.print("WiFi.getAutoConnect()=");
-    Serial.println(WiFi.getAutoConnect());
-    Serial.print("WiFi.SSID()=");
-    Serial.println(WiFi.SSID());
     WiFi.mode(WIFI_STA);
+  }
 
-    Serial.print("ESP Board MAC Address:  ");
-    Serial.println(WiFi.macAddress());
+  if (WiFi.SSID() != ssid)
+  {
     Serial.print("Connecting to ");
     Serial.println(ssid);
     WiFi.begin(ssid, pass);
@@ -67,61 +64,88 @@ void setup()
     delay(500);
     Serial.print(".");
     Serial.print(WiFi.status());
+
     if (--ConnectTimeout <= 0)
     {
       Serial.println();
       Serial.println("WiFi connect timeout");
-      return;
+      return false;
     }
   }
   Serial.println();
   Serial.println("WiFi connected");
+  return true;
+}
 
-  HTTPClient http;
+void httpGet(String url, void (*payloadHandler)(String))
+{
+  HTTPClient httpClient;
 
   Serial.print("[HTTP] begin...\n");
-  // configure traged server and url
-  //http.begin("https://www.howsmyssl.com/a/check", ca); //HTTPS
-  http.begin("http://bots.pashutk.ru:8000/api/image.bin"); //HTTP
+  httpClient.begin(url);
 
   Serial.print("[HTTP] GET...\n");
-  // start connection and send HTTP header
-  int httpCode = http.GET();
+
+  int httpCode = httpClient.GET();
 
   // httpCode will be negative on error
   if (httpCode > 0)
   {
-    // HTTP header has been send and Server response header has been handled
     Serial.printf("[HTTP] GET... code: %d\n", httpCode);
 
-    // file found at server
     if (httpCode == HTTP_CODE_OK)
     {
-      String payload = http.getString();
-      Serial.println(payload.length());
-
-      display.init(115200);
-      display.setFullWindow();
-
-      display.firstPage();
-      do
-      {
-        display.fillScreen(GxEPD_WHITE);
-        drawBitmap(0, 0, (unsigned char *)payload.c_str(), display.epd2.WIDTH, display.epd2.HEIGHT, GxEPD_BLACK);
-      } while (display.nextPage());
-
-      Serial.println("Power off");
-      display.powerOff();
+      String payload = httpClient.getString();
+      payloadHandler(payload);
     }
   }
   else
   {
-    Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
+    Serial.printf("[HTTP] GET... failed, error: %s\n", httpClient.errorToString(httpCode).c_str());
   }
 
-  http.end();
+  httpClient.end();
+}
+
+void drawHttpPayload(String payload)
+{
+  Serial.println("Draw HTTP payload");
+  Serial.print("Payload length: ");
+  Serial.println(payload.length());
+
+  display.init(115200);
+  display.setFullWindow();
+
+  display.firstPage();
+  do
+  {
+    display.fillScreen(GxEPD_WHITE);
+    drawBitmap(0, 0, (unsigned char *)payload.c_str(), display.epd2.WIDTH, display.epd2.HEIGHT, GxEPD_BLACK);
+  } while (display.nextPage());
+
+  Serial.println("Power off");
+  display.powerOff();
+}
+
+void connectAndDrawImage(String url)
+{
+  bool connected = connectWifi();
+  if (!connected)
+  {
+    Serial.println("Failed to connect to wifi");
+    return;
+  }
+
+  httpGet(url, drawHttpPayload);
+}
+
+void setup()
+{
+  Serial.begin(115200);
 }
 
 void loop()
 {
+  connectAndDrawImage("http://bots.pashutk.ru:8000/api/random.bin");
+  delay(20000);
 }
