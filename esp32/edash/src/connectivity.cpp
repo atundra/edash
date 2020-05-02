@@ -2,7 +2,7 @@
 
 // SSID and PW for Config Portal
 String ssid = "ESP_" + String(ESP_getChipId(), HEX);
-const char *password = "loh_pidr";
+const char *password = "";
 
 // SSID and PW for your Router
 String Router_SSID;
@@ -10,9 +10,6 @@ String Router_Pass;
 
 //DoubleResetDetector drd(DRD_TIMEOUT, DRD_ADDRESS);
 DoubleResetDetector *drd;
-
-// Onboard LED I/O pin on NodeMCU board
-const int PIN_LED = 2; // D4 on NodeMCU and WeMos. GPIO2/ADC12 of ESP32. Controls the onboard LED.
 
 // Indicates whether ESP has WiFi credentials saved from previous session, or double reset detected
 bool initialConfig = false;
@@ -55,7 +52,7 @@ void setup()
 {
   // put your setup code here, to run once:
   // initialize the LED digital pin as an output.
-  pinMode(PIN_LED, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(115200);
   Serial.println("\nStarting");
 
@@ -101,7 +98,7 @@ void setup()
   if (initialConfig)
   {
     Serial.println("Starting configuration portal.");
-    digitalWrite(PIN_LED, LED_ON); // turn the LED on by making the voltage LOW to tell us we are in configuration mode.
+    digitalWrite(LED_BUILTIN, LED_ON); // turn the LED on by making the voltage LOW to tell us we are in configuration mode.
 
     //sets timeout in seconds until configuration portal gets turned off.
     //If not specified device will remain in configuration mode until
@@ -116,7 +113,7 @@ void setup()
       Serial.println("WiFi connected...yeey :)");
   }
 
-  digitalWrite(PIN_LED, LED_OFF); // Turn led off as we are not in configuration mode.
+  digitalWrite(LED_BUILTIN, LED_OFF); // Turn led off as we are not in configuration mode.
 
   unsigned long startedAt = millis();
 

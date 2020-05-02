@@ -60,9 +60,6 @@ extern String Router_Pass;
 //DoubleResetDetector drd(DRD_TIMEOUT, DRD_ADDRESS);
 extern DoubleResetDetector *drd;
 
-// Onboard LED I/O pin on NodeMCU board
-extern const int PIN_LED; // D4 on NodeMCU and WeMos. GPIO2/ADC12 of ESP32. Controls the onboard LED.
-
 // Indicates whether ESP has WiFi credentials saved from previous session, or double reset detected
 extern bool initialConfig;
 
