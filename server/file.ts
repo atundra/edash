@@ -1,6 +1,6 @@
-import fs, { PathLike } from "fs";
-import axios, { Method, AxiosPromise } from "axios";
-import { Stream } from "stream";
+import fs, { PathLike } from 'fs';
+import axios, { Method, AxiosPromise } from 'axios';
+import { Stream } from 'stream';
 
 export const exists = async (imageName: PathLike): Promise<boolean> =>
   new Promise((resolve, reject) => {
@@ -15,7 +15,7 @@ type LoadConfig = {
 
 export const loadToStream = ({
   url,
-  method = "get",
+  method = 'get',
 }: {
   url: string;
   method?: Method;
@@ -23,22 +23,22 @@ export const loadToStream = ({
   axios({
     method,
     url,
-    responseType: "stream",
+    responseType: 'stream',
   }).then((res) => res.data);
 
-export const load = ({ url, output, method = "get" }: LoadConfig) =>
+export const load = ({ url, output, method = 'get' }: LoadConfig) =>
   new Promise((resolve, reject) => {
     const req: AxiosPromise<Stream> = axios({
       method,
       url,
-      responseType: "stream",
+      responseType: 'stream',
     });
 
     req
       .then((res) => {
         const outputStream = fs.createWriteStream(output);
-        res.data.on("data", (chunk) => outputStream.write(chunk));
-        res.data.on("end", () => {
+        res.data.on('data', (chunk) => outputStream.write(chunk));
+        res.data.on('end', () => {
           outputStream.end(() => resolve());
         });
       })

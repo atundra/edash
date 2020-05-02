@@ -1,17 +1,17 @@
-import { GeocoderResponse, LatLon } from "./types";
-import { YANDEX_API_KEY, GEOCODE_BASE_URL } from "../config";
+import { GeocoderResponse, LatLon } from './types';
+import { YANDEX_API_KEY, GEOCODE_BASE_URL } from '../config';
 import {
   createUrl,
   createTuple2,
   getDataLoader,
   mapPromiseAll,
-} from "../utils";
+} from '../utils';
 
 const createGeocodeUrl = (address: string) =>
   createUrl(GEOCODE_BASE_URL, {
     apikey: YANDEX_API_KEY,
     geocode: address,
-    format: "json",
+    format: 'json',
   });
 
 const axiosGet = getDataLoader<GeocoderResponse>();
@@ -22,7 +22,7 @@ const getPosFromResponse = (res: GeocoderResponse) =>
     : null;
 
 const processPos = (gmlPoint: string | null) =>
-  gmlPoint ? createTuple2(gmlPoint.split(" ").map(parseFloat).reverse()) : null;
+  gmlPoint ? createTuple2(gmlPoint.split(' ').map(parseFloat).reverse()) : null;
 
 /**
  * Returns latlon

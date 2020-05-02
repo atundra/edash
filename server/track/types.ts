@@ -31,9 +31,9 @@ type LastPoint = {
 };
 
 export type TrackResponse =
-  | { status: "error"; message: string }
+  | { status: 'error'; message: string }
   | {
-      status: "ok";
+      status: 'ok';
       data: {
         trackCreationDateTime: string; //"14.01.2020 23:03:11"
         trackUpdateDateTime: string; //"18.04.2020 18:20:54"
@@ -52,7 +52,7 @@ export type TrackResponse =
         destinationAddress: string; //""
         collectOnDeliveryPrice: string; //""
         declaredValue: string; //""
-        deliveredStatus: "0" | "1"; //"0"
+        deliveredStatus: '0' | '1'; //"0"
         trackCodeModified: string; //""
         awaiting: boolean;
         events: TrackingEvent[];
