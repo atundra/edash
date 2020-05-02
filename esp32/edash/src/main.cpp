@@ -1,5 +1,5 @@
 #define ENABLE_GxEPD2_GFX 0
-#include <WiFi.h>
+#include "connectivity.h"
 #include <HTTPClient.h>
 
 // #include <GxEPD2_BW.h>
@@ -31,50 +31,6 @@ void drawBitmap(int16_t x, int16_t y, const uint8_t bitmap[], int16_t w, int16_t
       }
     }
   }
-}
-
-char ssid[] = "ESP32NET";
-char pass[] = "PhFy9KKreeFbR4jMCzHmDDNx";
-
-bool connectWifi()
-{
-  Serial.println("Connect Wifi");
-  Serial.print("WiFi.getAutoConnect()=");
-  Serial.println(WiFi.getAutoConnect());
-  Serial.print("WiFi.SSID()=");
-  Serial.println(WiFi.SSID());
-  Serial.print("ESP Board MAC Address:  ");
-  Serial.println(WiFi.macAddress());
-
-  if (WiFi.getMode() != WIFI_STA)
-  {
-    WiFi.mode(WIFI_STA);
-  }
-
-  if (WiFi.SSID() != ssid)
-  {
-    Serial.print("Connecting to ");
-    Serial.println(ssid);
-    WiFi.begin(ssid, pass);
-  }
-
-  int ConnectTimeout = 30; // 15 seconds
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(500);
-    Serial.print(".");
-    Serial.print(WiFi.status());
-
-    if (--ConnectTimeout <= 0)
-    {
-      Serial.println();
-      Serial.println("WiFi connect timeout");
-      return false;
-    }
-  }
-  Serial.println();
-  Serial.println("WiFi connected");
-  return true;
 }
 
 void httpGet(String url, void (*payloadHandler)(String))
@@ -127,25 +83,20 @@ void drawHttpPayload(String payload)
   display.powerOff();
 }
 
-void connectAndDrawImage(String url)
+void drawImage(String url)
 {
-  bool connected = connectWifi();
-  if (!connected)
-  {
-    Serial.println("Failed to connect to wifi");
-    return;
-  }
-
   httpGet(url, drawHttpPayload);
 }
 
 void setup()
 {
   Serial.begin(115200);
+  Connectivity::setup();
 }
 
 void loop()
 {
-  connectAndDrawImage("http://bots.pashutk.ru:8000/api/random.bin");
+  Connectivity::loop();
+  drawImage("http://bots.pashutk.ru:8000/api/random.bin");
   delay(20000);
 }
