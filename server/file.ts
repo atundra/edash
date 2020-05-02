@@ -13,6 +13,19 @@ type LoadConfig = {
   method?: Method;
 };
 
+export const loadToStream = ({
+  url,
+  method = "get",
+}: {
+  url: string;
+  method?: Method;
+}): Promise<Stream> =>
+  axios({
+    method,
+    url,
+    responseType: "stream",
+  }).then((res) => res.data);
+
 export const load = ({ url, output, method = "get" }: LoadConfig) =>
   new Promise((resolve, reject) => {
     const req: AxiosPromise<Stream> = axios({

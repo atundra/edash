@@ -1,16 +1,8 @@
 import { spawn } from "child_process";
 
-export const convertToBMP = (input: string, output: string): Promise<void> =>
+const convertTo = (convertArgs: string[] = []): Promise<void> =>
   new Promise((resolve, reject) => {
-    // magick convert -alpha off -compress none $1 BMP3:$2.bmp
-    const proc = spawn("convert", [
-      "-alpha",
-      "off",
-      "-compress",
-      "none",
-      input,
-      `BMP3:${output}`,
-    ]);
+    const proc = spawn("convert", convertArgs);
     let error = "";
 
     proc.stderr.on("data", (data) => (error += data));
@@ -23,3 +15,11 @@ export const convertToBMP = (input: string, output: string): Promise<void> =>
       }
     });
   });
+
+// magick convert -alpha off -compress none $1 BMP3:$2.bmp
+export const convertToBMP = (input: string, output: string) =>
+  convertTo(["-alpha", "off", "-compress", "none", input, `BMP3:${output}`]);
+
+// Just run convert command with input and output
+export const convertSimple = (input: string, output: string) =>
+  convertTo([input, output]);
