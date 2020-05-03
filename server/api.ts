@@ -135,12 +135,12 @@ const EXAMPLE_CONFIG: WidgetOptions[] = [
     },
   },
   {
-    id: 'hello',
+    id: 'googleCalendarEvents',
     position: {
       column: 1,
-      row: 7,
-      colspan: 5,
-      rowspan: 6,
+      row: 9,
+      colspan: 16,
+      rowspan: 1,
     },
   },
   {
@@ -154,18 +154,20 @@ const EXAMPLE_CONFIG: WidgetOptions[] = [
   },
 ];
 
-const layoutHandler: RequestHandler = async (req, res, next) => {
+const layoutHtmlHandler: RequestHandler = async (req, res, next) => {
+  const renderOptions = { widgets: EXAMPLE_CONFIG };
+
+  const pageContent = await Renderer.render(renderOptions);
+  res.type('html').send(pageContent);
+};
+
+const layouPngHandler: RequestHandler = async (req, res, next) => {
   const width = Number(req.query.width) || DEFAULT_WIDTH;
-  const height = Number(req.query.heigh) || DEFAULT_HEIGHT;
-  const debug = req.query.debug;
+  const height = Number(req.query.height) || DEFAULT_HEIGHT;
 
   const renderOptions = { widgets: EXAMPLE_CONFIG };
 
   const pageContent = await Renderer.render(renderOptions);
-
-  if (debug) {
-    return res.send(pageContent);
-  }
 
   const browser = await browsermanager.getBrowser();
   const page = await browser.newPage();
@@ -192,4 +194,5 @@ export const router = Router()
   .get('/image.bmp', bmpHandler)
   .get('/random.bin', randomBinHandler)
   .get('/random', randomHandler)
-  .get('/layout', layoutHandler);
+  .get('/layout.png', layouPngHandler)
+  .get('/layout.html', layoutHtmlHandler);

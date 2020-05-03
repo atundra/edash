@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 import { style } from 'typestyle';
 
-import { WidgetOptions } from '.';
+import { WidgetOptions, WidgetPosition } from '.';
 
 type Props = {
   widgetOptions: WidgetOptions[];
@@ -18,18 +18,18 @@ const styles = {
   }),
 };
 
+const getWidgetStyle = (position: WidgetPosition): CSSProperties => ({
+  gridColumnStart: position.column,
+  gridColumnEnd: position.column + position.colspan,
+  gridRowStart: position.row,
+  gridRowEnd: position.row + position.rowspan,
+  overflow: 'overlay',
+});
+
 const Layout = ({ widgetOptions, renderedWidgets }: Props) => (
   <div className={styles.gridContainer}>
     {widgetOptions.map(({ position }, i) => (
-      <div
-        key={i}
-        style={{
-          gridColumnStart: position.column,
-          gridColumnEnd: position.column + position.colspan,
-          gridRowStart: position.row,
-          gridRowEnd: position.row + position.rowspan,
-        }}
-      >
+      <div key={i} style={getWidgetStyle(position)}>
         {renderedWidgets[i]}
       </div>
     ))}
