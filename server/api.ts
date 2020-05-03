@@ -184,7 +184,7 @@ const createRenderOptions = (req: Request) => {
     widgets: EXAMPLE_CONFIG,
     layout: { width, height, columns: COLUMNS, rows: ROWS },
   };
-}
+};
 
 const layoutHtmlHandler: RequestHandler = async (req, res, next) => {
   const renderOptions = createRenderOptions(req);
@@ -193,7 +193,7 @@ const layoutHtmlHandler: RequestHandler = async (req, res, next) => {
   res.type('html').send(pageContent);
 };
 
-const layouPngHandler: RequestHandler = async (req, res, next) => {
+const layoutPngHandler: RequestHandler = async (req, res, next) => {
   const renderOptions = createRenderOptions(req);
 
   const pageContent = await Renderer.render(renderOptions);
@@ -229,5 +229,5 @@ export const router = Router()
   .get('/image.bmp', bmpHandler)
   .get('/random.bin', randomBinHandler)
   .get('/random', randomHandler)
-  .get('/layout.png', layouPngHandler)
+  .get('/layout.png', layoutPngHandler)
   .get('/layout.html', layoutHtmlHandler);
