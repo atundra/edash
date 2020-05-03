@@ -5,7 +5,7 @@ import { getStyles } from 'typestyle';
 import WIDGETS_REGISTRY from './widgets/registry';
 import Layout from './layout';
 
-type WidgetPosition = {
+export type WidgetPosition = {
   column: number;
   row: number;
   colspan: number;
@@ -46,7 +46,7 @@ export default class Renderer {
       try {
         const widgetData = await widget.resolveData(widgetConfig.options);
 
-        return widget.render(widgetData);
+        return widget.render(widgetData as any);
       } catch (error) {
         console.error(
           `Error while rendering widget ${widgetConfig.id}\n`,
