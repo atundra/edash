@@ -1,4 +1,3 @@
-import { Page } from 'puppeteer';
 import { Router, RequestHandler, Request } from 'express';
 import { generate as generateMapUrl } from './mapUrl';
 import path from 'path';
@@ -15,8 +14,8 @@ import {
   LAYOUT_ROWS_COUNT,
 } from './config';
 import { pngStreamToBitmap } from './createBitmap';
-import * as browsermanager from './browsermanager';
 import Renderer, { WidgetOptions } from './renderer';
+import { getContentScreenshot } from './puppeteer';
 
 let imageLoadedTs = 0;
 
@@ -118,33 +117,6 @@ const randomBinHandler: RequestHandler = async (req, res, next) => {
   res.send(bitmap);
 };
 
-type ImageLoadError = { type: 'error'; src: string };
-
-const waitForImagesLoad = (page: Page) =>
-  page.evaluate(() => {
-    const selectors = Array.from(document.querySelectorAll('img'));
-
-    return Promise.all(
-      selectors.map((img) => {
-        if (img.complete) {
-          if (img.naturalHeight === 0 && img.naturalWidth === 0) {
-            return { type: 'error', src: img.src } as ImageLoadError;
-          }
-
-          return null;
-        }
-
-        return new Promise((resolve) => {
-          img.addEventListener('load', resolve);
-          // We don't want to fail the whole layout because of one image
-          img.addEventListener('error', () =>
-            resolve({ type: 'error', src: img.src })
-          );
-        }) as Promise<Event | ImageLoadError>;
-      })
-    );
-  });
-
 const DEFAULT_WIDTH = 800;
 const DEFAULT_HEIGHT = 480;
 
@@ -208,27 +180,10 @@ const layoutPngHandler: RequestHandler = async (req, res, next) => {
 
   const pageContent = await Renderer.render(renderOptions);
 
-  const browser = await browsermanager.getBrowser();
-  const page = await browser.newPage();
-
-  await page.setViewport({
+  const screenshot = await getContentScreenshot(pageContent, {
     width: renderOptions.layout.width,
     height: renderOptions.layout.height,
   });
-
-  await page.setContent(pageContent, { waitUntil: ['load'] });
-
-  await waitForImagesLoad(page).then((imageEvents) =>
-    imageEvents.forEach((event) => {
-      if (event && event.type === 'error') {
-        console.error(`Image failed to load: ${(event as ImageLoadError).src}`);
-      }
-    })
-  );
-
-  const screenshot = await page.screenshot();
-
-  await page.close();
 
   res.type('png').send(screenshot);
 };
