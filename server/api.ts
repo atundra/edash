@@ -1,5 +1,5 @@
 import { Page } from 'puppeteer';
-import { Router, RequestHandler } from 'express';
+import { Router, RequestHandler, Request } from 'express';
 import { generate as generateMapUrl } from './mapUrl';
 import path from 'path';
 import {
@@ -8,7 +8,7 @@ import {
 } from './image';
 import { exists as isFileExists, load as loadFile } from './file';
 import { PathLike, createReadStream } from 'fs';
-import { IMAGE_MAX_AGE, TRACKS } from './config';
+import { IMAGE_MAX_AGE, TRACKS, COLUMNS, ROWS } from './config';
 import { pngStreamToBitmap } from './createBitmap';
 import * as browsermanager from './browsermanager';
 import Renderer, { WidgetOptions } from './renderer';
@@ -34,7 +34,7 @@ const updateMapImageIfNeeded = async (filename: string): Promise<boolean> => {
     return false;
   }
 
-  const url = await generateMapUrl(TRACKS);
+  const url = await generateMapUrl(TRACKS, { width: 640, height: 384 });
   await loadFile({ url, output: filename });
   console.log('Image loaded');
 
@@ -113,13 +113,32 @@ const randomBinHandler: RequestHandler = async (req, res, next) => {
   res.send(bitmap);
 };
 
-const waitForPageLoad = async (page: Page) => {
-  const readyState = await page.evaluate(() => document.readyState);
+type ImageLoadError = { type: 'error'; src: string };
 
-  if (readyState !== 'complete') {
-    return new Promise((resolve) => page.once('load', resolve));
-  }
-};
+const waitForImagesLoad = (page: Page) =>
+  page.evaluate(() => {
+    const selectors = Array.from(document.querySelectorAll('img'));
+
+    return Promise.all(
+      selectors.map((img) => {
+        if (img.complete) {
+          if (img.naturalHeight === 0 && img.naturalWidth === 0) {
+            return { type: 'error', src: img.src } as ImageLoadError;
+          }
+
+          return null;
+        }
+
+        return new Promise((resolve) => {
+          img.addEventListener('load', resolve);
+          // We don't want to fail the whole layout because of one image
+          img.addEventListener('error', () =>
+            resolve({ type: 'error', src: img.src })
+          );
+        }) as Promise<Event | ImageLoadError>;
+      })
+    );
+  });
 
 const DEFAULT_WIDTH = 800;
 const DEFAULT_HEIGHT = 480;
@@ -144,28 +163,38 @@ const EXAMPLE_CONFIG: WidgetOptions[] = [
     },
   },
   {
-    id: 'hello',
+    id: 'parcelMap',
     position: {
       column: 6,
       row: 1,
-      colspan: 5,
-      rowspan: 12,
+      colspan: 11,
+      rowspan: 8,
+    },
+    options: {
+      tracks: TRACKS,
     },
   },
 ];
 
+const createRenderOptions = (req: Request) => {
+  const width = Number(req.query.width) || DEFAULT_WIDTH;
+  const height = Number(req.query.height) || DEFAULT_HEIGHT;
+
+  return {
+    widgets: EXAMPLE_CONFIG,
+    layout: { width, height, columns: COLUMNS, rows: ROWS },
+  };
+}
+
 const layoutHtmlHandler: RequestHandler = async (req, res, next) => {
-  const renderOptions = { widgets: EXAMPLE_CONFIG };
+  const renderOptions = createRenderOptions(req);
 
   const pageContent = await Renderer.render(renderOptions);
   res.type('html').send(pageContent);
 };
 
 const layouPngHandler: RequestHandler = async (req, res, next) => {
-  const width = Number(req.query.width) || DEFAULT_WIDTH;
-  const height = Number(req.query.height) || DEFAULT_HEIGHT;
-
-  const renderOptions = { widgets: EXAMPLE_CONFIG };
+  const renderOptions = createRenderOptions(req);
 
   const pageContent = await Renderer.render(renderOptions);
 
@@ -173,17 +202,23 @@ const layouPngHandler: RequestHandler = async (req, res, next) => {
   const page = await browser.newPage();
 
   await page.setViewport({
-    width,
-    height,
+    width: renderOptions.layout.width,
+    height: renderOptions.layout.height,
   });
 
-  page.setContent(pageContent);
+  await page.setContent(pageContent, { waitUntil: ['load'] });
 
-  await waitForPageLoad(page);
+  await waitForImagesLoad(page).then((imageEvents) =>
+    imageEvents.forEach((event) => {
+      if (event && event.type === 'error') {
+        console.error(`Image failed to load: ${(event as ImageLoadError).src}`);
+      }
+    })
+  );
 
   const screenshot = await page.screenshot();
 
-  page.close();
+  await page.close();
 
   res.type('png').send(screenshot);
 };

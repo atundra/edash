@@ -13,14 +13,29 @@ export type WidgetPosition = {
 };
 
 export type WidgetOptions = {
-  id: keyof typeof WIDGETS_REGISTRY;
+  id: string;
   position: WidgetPosition;
-  // TODO: Add an ability to pass widget options from endpoint
-  options?: {};
+  // TODO: Improve typings
+  options?: any;
+};
+
+export type LayoutProperties = {
+  width: number;
+  height: number;
+  rows: number;
+  columns: number;
 };
 
 type RenderOptions = {
   widgets: WidgetOptions[];
+  layout: LayoutProperties;
+};
+
+export type DefaultResolverOptions = {
+  layout: LayoutProperties;
+  widget: {
+    position: WidgetPosition;
+  };
 };
 
 const renderPage = ({ body, css }: { body: string; css: string }) => `
@@ -38,14 +53,43 @@ const renderPage = ({ body, css }: { body: string; css: string }) => `
 </html>
 `;
 
+const ensureWidgetExists = <T extends string>(
+  widgetId: T | keyof typeof WIDGETS_REGISTRY
+): widgetId is keyof typeof WIDGETS_REGISTRY => {
+  return Object.prototype.hasOwnProperty.call(WIDGETS_REGISTRY, widgetId);
+};
+
+const createDefaultResolverOptions = (
+  renderOptions: RenderOptions,
+  widgetOptions: WidgetOptions
+): DefaultResolverOptions => ({
+  layout: renderOptions.layout,
+  widget: {
+    position: widgetOptions.position,
+  },
+});
+
 export default class Renderer {
   static renderWidgets(options: RenderOptions) {
     const widgetDataPromises = options.widgets.map(async (widgetConfig) => {
+      if (!ensureWidgetExists(widgetConfig.id)) {
+        console.error(`Widget with id ${widgetConfig.id} is not supported\n`);
+
+        return null;
+      }
+
       const widget = WIDGETS_REGISTRY[widgetConfig.id];
 
       try {
-        const widgetData = await widget.resolveData(widgetConfig.options);
+        // TODO: Improve typings
+        const resolverOptions = {
+          ...createDefaultResolverOptions(options, widgetConfig),
+          ...widgetConfig.options,
+        };
 
+        const widgetData = await widget.resolveData(resolverOptions);
+
+        // TODO: Improve typings
         return widget.render(widgetData as any);
       } catch (error) {
         console.error(
@@ -53,11 +97,7 @@ export default class Renderer {
           error
         );
 
-        if (widget.renderFallback) {
-          return widget.renderFallback(error);
-        }
-
-        return null;
+        return widget.renderFallback(error);
       }
     });
 
@@ -69,6 +109,7 @@ export default class Renderer {
 
     const layout = React.createElement(Layout, {
       widgetOptions: options.widgets,
+      layoutProperties: options.layout,
       renderedWidgets,
     });
     const body = ReactDOMServer.renderToStaticMarkup(layout);
