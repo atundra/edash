@@ -42,5 +42,5 @@ export const PUPPETEER_ARGS =
     ? process.env.PUPPETEER_ARGS.split(',')
     : [];
 
-export const COLUMNS = 16;
-export const ROWS = 12;
+export const LAYOUT_COLUMNS_COUNT = 16;
+export const LAYOUT_ROWS_COUNT = 12;

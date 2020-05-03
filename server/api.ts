@@ -8,7 +8,12 @@ import {
 } from './image';
 import { exists as isFileExists, load as loadFile } from './file';
 import { PathLike, createReadStream } from 'fs';
-import { IMAGE_MAX_AGE, TRACKS, COLUMNS, ROWS } from './config';
+import {
+  IMAGE_MAX_AGE,
+  TRACKS,
+  LAYOUT_COLUMNS_COUNT,
+  LAYOUT_ROWS_COUNT,
+} from './config';
 import { pngStreamToBitmap } from './createBitmap';
 import * as browsermanager from './browsermanager';
 import Renderer, { WidgetOptions } from './renderer';
@@ -182,7 +187,12 @@ const createRenderOptions = (req: Request) => {
 
   return {
     widgets: EXAMPLE_CONFIG,
-    layout: { width, height, columns: COLUMNS, rows: ROWS },
+    layout: {
+      width,
+      height,
+      columns: LAYOUT_COLUMNS_COUNT,
+      rows: LAYOUT_ROWS_COUNT,
+    },
   };
 };
 
