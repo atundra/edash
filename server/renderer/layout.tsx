@@ -23,7 +23,7 @@ const getWidgetStyle = (position: WidgetPosition): CSSProperties => ({
   gridColumnEnd: position.column + position.colspan,
   gridRowStart: position.row,
   gridRowEnd: position.row + position.rowspan,
-  overflow: 'overlay',
+  overflow: 'hidden',
 });
 
 const Layout = ({ widgetOptions, renderedWidgets }: Props) => (
