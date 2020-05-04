@@ -13,7 +13,6 @@ const buildGmapsParams = (
     .join('|');
 
 const getDefaultConfig = () => ({
-  size: '640x384',
   key: GMAPS_API_KEY,
   style: [
     buildGmapsParams({
@@ -55,9 +54,13 @@ type Marker = {
   pos: LatLon | string;
 };
 
-export const getMapUrl = (markers: Marker[]) =>
+export const getMapUrl = (
+  markers: Marker[],
+  size: { width: number; height: number }
+) =>
   createUrl(GMAPS_STATIC_API, {
     ...getDefaultConfig(),
+    size: `${size.width}x${size.height}`,
     markers: markers.map((marker) =>
       buildGmapsParams(
         {
@@ -72,10 +75,12 @@ const getClusterLabel = (count: number) =>
   count > 9 ? 'L' : count > 1 ? String(count) : null;
 
 export const getMapUrlForClusters = (
-  clusters: { pos: LatLon; count: number }[]
+  clusters: { pos: LatLon; count: number }[],
+  size: { width: number; height: number }
 ) =>
   createUrl(GMAPS_STATIC_API, {
     ...getDefaultConfig(),
+    size: `${size.width}x${size.height}`,
     markers: clusters.map(({ pos, count }) =>
       buildGmapsParams(
         {

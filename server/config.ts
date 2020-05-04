@@ -36,3 +36,11 @@ export const GOOGLE_API_OAUTH_CLIENT_SECRET =
 export const GOOGLE_API_OAUTH_TOKEN_PATH = 'token.json';
 
 export const ENABLE_GOOGLE_API = Boolean(process.env.ENABLE_GOOGLE_API);
+
+export const PUPPETEER_ARGS =
+  process.env.PUPPETEER_ARGS !== undefined
+    ? process.env.PUPPETEER_ARGS.split(',')
+    : [];
+
+export const LAYOUT_COLUMNS_COUNT = 16;
+export const LAYOUT_ROWS_COUNT = 12;
