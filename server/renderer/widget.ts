@@ -10,7 +10,7 @@ export type CacheConfiguration<O extends {}> = {
   /**
    * Function calculating cache key
    */
-  keyResolver?: (resolverOptions: DefaultResolverOptions & O) => string;
+  getCacheKey?: (resolverOptions: DefaultResolverOptions & O) => string;
 };
 
 export type WidgetDefinition<O extends {}, P> = {

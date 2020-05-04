@@ -128,8 +128,8 @@ export default class Renderer {
       return widget.resolveData(resolverOptions);
     }
 
-    const cacheKey = cacheConfiguration.keyResolver
-      ? cacheConfiguration.keyResolver(resolverOptions)
+    const cacheKey = cacheConfiguration.getCacheKey
+      ? cacheConfiguration.getCacheKey(resolverOptions)
       : hashIt(resolverOptions);
 
     const cachedWidgetData = await this.cacheImplementation.get(cacheKey);
