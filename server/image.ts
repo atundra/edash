@@ -36,21 +36,25 @@ export const convertBuffer = (
   convertArgs: string[] = []
 ): Promise<Buffer> =>
   new Promise((resolve, reject) => {
-    var buffers: Buffer[] = [];
+    const buffers: Buffer[] = [];
+
+    const errors: string[] = [];
 
     const proc = spawn('convert', convertArgs);
 
     proc.stdout.on('data', (data) => {
-      buffers.push(data);
+      buffers.push(toggleEndianness(data));
     });
 
     proc.stderr.on('data', function (data) {
-      reject(data);
+      errors.push(data.toString());
     });
 
     proc.on('close', function (code, signal) {
       if (code == 0 || signal == null) {
-        resolve(toggleEndianness(Buffer.concat(buffers)));
+        resolve(Buffer.concat(buffers));
+      } else if (errors.length) {
+        reject(errors.join('\n'));
       }
     });
 
