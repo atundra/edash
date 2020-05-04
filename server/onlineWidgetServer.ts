@@ -20,9 +20,9 @@ const RENDER_CONFIG: WidgetOptions[] = [
     id: 'googleCalendarEvents',
     position: {
       column: 1,
-      row: 9,
+      row: 10,
       colspan: 16,
-      rowspan: 4,
+      rowspan: 3,
     },
   },
   {
@@ -31,7 +31,7 @@ const RENDER_CONFIG: WidgetOptions[] = [
       column: 6,
       row: 1,
       colspan: 11,
-      rowspan: 8,
+      rowspan: 9,
     },
     options: {
       tracks: TRACKS,
