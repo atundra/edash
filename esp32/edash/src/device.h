@@ -1,7 +1,5 @@
 #pragma once
 
-#include "display.h"
-
 #include <Esp.h>
 #include <Adafruit_GFX.h>
 
