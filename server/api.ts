@@ -4,6 +4,7 @@ import path from 'path';
 import {
   convertToBMP as convertImageToBMP,
   convertSimple as convertImageSimple,
+  convertBuffer,
 } from './image';
 import { exists as isFileExists, load as loadFile } from './file';
 import { PathLike, createReadStream } from 'fs';
@@ -188,6 +189,26 @@ const layoutPngHandler: RequestHandler = async (req, res, next) => {
   res.type('png').send(screenshot);
 };
 
+const layoutBinHandler: RequestHandler = async (req, res, next) => {
+  const renderOptions = createRenderOptions(req);
+
+  const pageContent = await Renderer.render(renderOptions);
+
+  const screenshot = await getContentScreenshot(pageContent, {
+    width: renderOptions.layout.width,
+    height: renderOptions.layout.height,
+  });
+
+  const binScreenshot = await convertBuffer((screenshot as unknown) as Buffer, [
+    'PNG:-',
+    '-dither',
+    'Floyd-Steinberg',
+    'MONO:-',
+  ]);
+
+  res.send(binScreenshot);
+};
+
 export const router = Router()
   .get('/image.bin', binHandler)
   .get('/image.png', pngHanlder)
@@ -195,4 +216,5 @@ export const router = Router()
   .get('/random.bin', randomBinHandler)
   .get('/random', randomHandler)
   .get('/layout.png', layoutPngHandler)
-  .get('/layout.html', layoutHtmlHandler);
+  .get('/layout.html', layoutHtmlHandler)
+  .get('/layout.bin', layoutBinHandler);
