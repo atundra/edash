@@ -45,6 +45,24 @@ public:
 
 public:
     void DrawPayload(const String &payload) const;
+
+public:
+    class Wigdet {
+        public:
+        using Coordinates = Resolution;
+        typedef enum {
+            LOCAL,
+            ONLINE
+        } WidgetType;
+        private:
+        Coordinates corner;
+        Coordinates size;
+        WidgetType type;
+
+        public:
+        Widget(const Coordinates& new_corner, const Coordinates& new_size, const WidgetType& new_type) : corner (new_corner), size(new_size), type(new_type) {}
+        
+    };
 };
 
 }; // namespace Dashboard_NS
