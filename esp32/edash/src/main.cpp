@@ -97,6 +97,6 @@ void setup()
 void loop()
 {
   Connectivity::loop();
-  drawImage("http://bots.pashutk.ru:8000/api/random.bin");
+  drawImage("http://bots.pashutk.ru:8000/api/layout.bin?width=640&height=384");
   delay(20000);
 }
