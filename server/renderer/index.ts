@@ -36,6 +36,7 @@ type RenderOptions = {
 export type DefaultResolverOptions = {
   layout: LayoutProperties;
   widget: {
+    id: string;
     position: WidgetPosition;
   };
 };
@@ -67,6 +68,7 @@ const createDefaultResolverOptions = (
 ): DefaultResolverOptions => ({
   layout: renderOptions.layout,
   widget: {
+    id: widgetOptions.id,
     position: widgetOptions.position,
   },
 });
