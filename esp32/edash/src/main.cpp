@@ -10,7 +10,6 @@ GxEPD2_3C<GxEPD2_750c, GxEPD2_750c::HEIGHT> display(GxEPD2_750c(/*CS=5*/ SS, /*D
 
 Dashboard_NS::Dashboard<GxEPD2_3C<GxEPD2_750c, GxEPD2_750c::HEIGHT>> dashboard(display);
 
-
 // TODO move to some class or whatever and add sending parameters
 String httpGet(const String &url)
 {
@@ -55,7 +54,7 @@ void loop()
 {
   Connectivity::loop();
   delay(20000);
-  payload = httpGet("http://bots.pashutk.ru:8000/api/random.bin");
+  payload = httpGet("http://bots.pashutk.ru:8000/api/layout.bin?width=640&height=384");
   dashboard.GetColors();
   dashboard.DrawPayload(payload);
 }
