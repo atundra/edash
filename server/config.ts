@@ -44,3 +44,5 @@ export const PUPPETEER_ARGS =
 
 export const LAYOUT_COLUMNS_COUNT = 16;
 export const LAYOUT_ROWS_COUNT = 12;
+
+export const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY;
