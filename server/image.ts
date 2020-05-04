@@ -24,13 +24,11 @@ const reverse = (b: number) => {
 };
 
 const toggleEndianness = function (buf: Buffer): Buffer {
-  var output = Buffer.alloc(buf.length);
-
   for (const [i, b] of buf.entries()) {
-    output.writeUInt8(reverse(b), i);
+    buf.writeUInt8(reverse(b), i);
   }
 
-  return output;
+  return buf;
 };
 
 export const convertBuffer = (
