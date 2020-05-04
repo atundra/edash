@@ -103,5 +103,5 @@ void loop()
   delay(20000);
   payload = httpGet("http://bots.pashutk.ru:8000/api/random.bin");
   dashboard.GetColors();
-  // dashboard.DrawPayload(payload);
+  dashboard.DrawPayload(payload);
 }
