@@ -46,7 +46,7 @@ const renderPage = ({ body, css }: { body: string; css: string }) => `
 <html>
 <head>
     <style>
-      html, body { height: 100%; margin: 0 }
+      html, body { height: 100%; margin: 0; font-smooth: never; -webkit-font-smoothing : none; }
       ${css}
     </style>
 </head>
