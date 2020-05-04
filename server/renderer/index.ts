@@ -117,4 +117,35 @@ export default class Renderer {
 
     return renderPage({ body, css });
   }
+
+  static async renderDevPage(options: RenderOptions) {
+    const renderedWidgets = await Renderer.renderWidgets(options);
+
+    const layout = React.createElement(Layout, {
+      widgetOptions: options.widgets,
+      layoutProperties: options.layout,
+      renderedWidgets,
+    });
+    const body = ReactDOMServer.renderToStaticMarkup(layout);
+    const css = getStyles();
+
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+      html, body { height: 100%; margin: 0 }
+      body {  display: grid; justify-content: center; align-items: center; background: #ccc; }
+      .sizeWrapper { height: ${options.layout.height}px; width: ${options.layout.width}px; background: white; }
+      ${css}
+    </style>
+</head>
+<body>
+  <div class="sizeWrapper">
+    ${body}
+  </div>
+</body>
+</html>
+`;
+  }
 }
