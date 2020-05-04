@@ -51,7 +51,7 @@ export const getContentScreenshot = async (
     })
   );
 
-  const screenshot = await page.screenshot();
+  const screenshot = await page.screenshot({ encoding: 'binary' });
 
   await page.close();
 
