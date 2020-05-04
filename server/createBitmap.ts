@@ -9,9 +9,11 @@ export const pngStreamToBitmap = (input: fs.ReadStream): Promise<Buffer> =>
     input.on('end', () => {
       convertBuffer(Buffer.concat(buffers), [
         'PNG:-',
-        '-ordered-dither',
-        'o8x8,2',
+        '-dither',
+        'Floyd-Steinberg',
         'MONO:-',
-      ]).then(resolve, reject);
+      ]).then(resolve, (err) => {
+        console.log(err.toString());
+      });
     });
   });
