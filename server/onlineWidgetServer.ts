@@ -20,7 +20,7 @@ const RENDER_CONFIG: WidgetOptions[] = [
       column: 1,
       row: 9,
       colspan: 16,
-      rowspan: 1,
+      rowspan: 4,
     },
   },
   {
