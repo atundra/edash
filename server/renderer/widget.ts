@@ -2,6 +2,17 @@ import React from 'react';
 
 import { DefaultResolverOptions } from '.';
 
+export type CacheConfiguration<O extends {}> = {
+  /**
+   * Time to cache data in seconds. 0 - unlimited
+   */
+  ttl: number;
+  /**
+   * Function calculating cache key
+   */
+  getCacheKey?: (resolverOptions: DefaultResolverOptions & O) => string;
+};
+
 export type WidgetDefinition<O extends {}, P> = {
   /**
    * @throws Error
@@ -10,6 +21,7 @@ export type WidgetDefinition<O extends {}, P> = {
   template: React.FunctionComponent<P> | React.ComponentClass<P>;
   // TODO: Improve fallback typings
   fallback?: React.FunctionComponent<any> | React.ComponentClass<any>;
+  cache?: CacheConfiguration<O>;
 };
 
 export default class Widget<O extends {}, P> {
@@ -33,5 +45,9 @@ export default class Widget<O extends {}, P> {
     }
 
     return React.createElement(fallback, error);
+  }
+
+  getCacheConfiguration() {
+    return this.definition.cache;
   }
 }

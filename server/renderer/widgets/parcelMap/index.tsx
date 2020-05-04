@@ -10,4 +10,7 @@ export type Options = {
 export default new Widget({
   dataResolver: resolver,
   template: ({ googleMapsUrl }) => <img src={googleMapsUrl} />,
+  cache: {
+    ttl: 1000 * 60 * 60 * 6,
+  },
 });
