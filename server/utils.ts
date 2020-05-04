@@ -11,16 +11,25 @@ function encodeQueryValue(value?: Value): string {
     : '';
 }
 
+function passQueryValue(value?: Value): string {
+  if (value === null || value === undefined) {
+    return '';
+  }
+
+  return String(value);
+}
+
 export function serializeQueryData(
-  params: { [key: string]: Value | Value[] } = {}
+  params: { [key: string]: Value | Value[] } = {},
+  encodeFunction = encodeQueryValue
 ): string {
   return Object.keys(params)
     .map((key: string) =>
       Array.isArray(params[key])
         ? (params[key] as Value[])
-            .map((value) => `${key}=${encodeQueryValue(value)}`)
+            .map((value) => `${key}=${encodeFunction(value)}`)
             .join('&')
-        : `${key}=${encodeQueryValue(params[key] as Value)}`
+        : `${key}=${encodeFunction(params[key] as Value)}`
     )
     .join('&');
 }
@@ -66,8 +75,14 @@ export function getQueryData(url: string): QueryData {
   return {};
 }
 
-export function createUrl(baseUrl: string, params = {}): string {
+export function createUrl(
+  baseUrl: string,
+  params = {},
+  disableEncoding = false
+): string {
   const match = baseUrl.match(URL_REGEXP);
+
+  const encoder = disableEncoding ? passQueryValue : undefined;
 
   if (match) {
     const [url, base, query, hash] = match;
@@ -79,10 +94,10 @@ export function createUrl(baseUrl: string, params = {}): string {
           }
         : params;
 
-    return `${base}?${serializeQueryData(queryData)}${hash || ''}`;
+    return `${base}?${serializeQueryData(queryData, encoder)}${hash || ''}`;
   }
 
-  return `?${serializeQueryData(params)}`;
+  return `?${serializeQueryData(params, encoder)}`;
 }
 
 export const createTuple2 = <T>(list: Array<T>): [T, T] => [list[0], list[1]];

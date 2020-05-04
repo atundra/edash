@@ -1,17 +1,22 @@
-import { Page } from 'puppeteer';
-import { Router, RequestHandler } from 'express';
+import { Router, RequestHandler, Request } from 'express';
 import { generate as generateMapUrl } from './mapUrl';
 import path from 'path';
 import {
   convertToBMP as convertImageToBMP,
   convertSimple as convertImageSimple,
+  convertBuffer,
 } from './image';
 import { exists as isFileExists, load as loadFile } from './file';
 import { PathLike, createReadStream } from 'fs';
-import { IMAGE_MAX_AGE, TRACKS } from './config';
+import {
+  IMAGE_MAX_AGE,
+  TRACKS,
+  LAYOUT_COLUMNS_COUNT,
+  LAYOUT_ROWS_COUNT,
+} from './config';
 import { pngStreamToBitmap } from './createBitmap';
-import * as browsermanager from './browsermanager';
 import Renderer, { WidgetOptions } from './renderer';
+import { getContentScreenshot } from './puppeteer';
 
 let imageLoadedTs = 0;
 
@@ -34,7 +39,7 @@ const updateMapImageIfNeeded = async (filename: string): Promise<boolean> => {
     return false;
   }
 
-  const url = await generateMapUrl(TRACKS);
+  const url = await generateMapUrl(TRACKS, { width: 640, height: 384 });
   await loadFile({ url, output: filename });
   console.log('Image loaded');
 
@@ -113,14 +118,6 @@ const randomBinHandler: RequestHandler = async (req, res, next) => {
   res.send(bitmap);
 };
 
-const waitForPageLoad = async (page: Page) => {
-  const readyState = await page.evaluate(() => document.readyState);
-
-  if (readyState !== 'complete') {
-    return new Promise((resolve) => page.once('load', resolve));
-  }
-};
-
 const DEFAULT_WIDTH = 800;
 const DEFAULT_HEIGHT = 480;
 
@@ -135,55 +132,81 @@ const EXAMPLE_CONFIG: WidgetOptions[] = [
     },
   },
   {
-    id: 'hello',
+    id: 'googleCalendarEvents',
     position: {
       column: 1,
-      row: 7,
-      colspan: 5,
-      rowspan: 6,
+      row: 9,
+      colspan: 16,
+      rowspan: 1,
     },
   },
   {
-    id: 'hello',
+    id: 'parcelMap',
     position: {
       column: 6,
       row: 1,
-      colspan: 5,
-      rowspan: 12,
+      colspan: 11,
+      rowspan: 8,
+    },
+    options: {
+      tracks: TRACKS,
     },
   },
 ];
 
-const layoutHandler: RequestHandler = async (req, res, next) => {
+const createRenderOptions = (req: Request) => {
   const width = Number(req.query.width) || DEFAULT_WIDTH;
-  const height = Number(req.query.heigh) || DEFAULT_HEIGHT;
-  const debug = req.query.debug;
+  const height = Number(req.query.height) || DEFAULT_HEIGHT;
 
-  const renderOptions = { widgets: EXAMPLE_CONFIG };
+  return {
+    widgets: EXAMPLE_CONFIG,
+    layout: {
+      width,
+      height,
+      columns: LAYOUT_COLUMNS_COUNT,
+      rows: LAYOUT_ROWS_COUNT,
+    },
+  };
+};
+
+const layoutHtmlHandler: RequestHandler = async (req, res, next) => {
+  const renderOptions = createRenderOptions(req);
+
+  const pageContent = await Renderer.render(renderOptions);
+  res.type('html').send(pageContent);
+};
+
+const layoutPngHandler: RequestHandler = async (req, res, next) => {
+  const renderOptions = createRenderOptions(req);
 
   const pageContent = await Renderer.render(renderOptions);
 
-  if (debug) {
-    return res.send(pageContent);
-  }
-
-  const browser = await browsermanager.getBrowser();
-  const page = await browser.newPage();
-
-  await page.setViewport({
-    width,
-    height,
+  const screenshot = await getContentScreenshot(pageContent, {
+    width: renderOptions.layout.width,
+    height: renderOptions.layout.height,
   });
 
-  page.setContent(pageContent);
-
-  await waitForPageLoad(page);
-
-  const screenshot = await page.screenshot();
-
-  page.close();
-
   res.type('png').send(screenshot);
+};
+
+const layoutBinHandler: RequestHandler = async (req, res, next) => {
+  const renderOptions = createRenderOptions(req);
+
+  const pageContent = await Renderer.render(renderOptions);
+
+  const screenshot = await getContentScreenshot(pageContent, {
+    width: renderOptions.layout.width,
+    height: renderOptions.layout.height,
+  });
+
+  const binScreenshot = await convertBuffer(screenshot, [
+    'PNG:-',
+    '-dither',
+    'Floyd-Steinberg',
+    'MONO:-',
+  ]);
+
+  res.send(binScreenshot);
 };
 
 export const router = Router()
@@ -192,4 +215,6 @@ export const router = Router()
   .get('/image.bmp', bmpHandler)
   .get('/random.bin', randomBinHandler)
   .get('/random', randomHandler)
-  .get('/layout', layoutHandler);
+  .get('/layout.png', layoutPngHandler)
+  .get('/layout.html', layoutHtmlHandler)
+  .get('/layout.bin', layoutBinHandler);
