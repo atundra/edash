@@ -1,4 +1,6 @@
 import express, { Router, Request } from 'express';
+import NodeCache from 'node-cache';
+
 import Renderer, { WidgetOptions } from './renderer';
 import { LAYOUT_COLUMNS_COUNT, LAYOUT_ROWS_COUNT, TRACKS } from './config';
 
@@ -55,10 +57,13 @@ const createRenderOptions = (req: Request) => {
   };
 };
 
+const widgetDataCache = new NodeCache();
+const widgetRenderer = new Renderer(widgetDataCache);
+
 export const router = Router().get('/', async (req, res, next) => {
   const renderOptions = createRenderOptions(req);
 
-  const pageContent = await Renderer.renderDevPage(renderOptions);
+  const pageContent = await widgetRenderer.renderDevPage(renderOptions);
   res.type('html').send(pageContent);
 });
 

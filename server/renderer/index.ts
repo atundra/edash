@@ -1,9 +1,11 @@
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { getStyles } from 'typestyle';
+import hashIt from 'hash-it';
 
 import WIDGETS_REGISTRY from './widgets/registry';
 import Layout from './layout';
+import Widget from './widget';
 
 export type WidgetPosition = {
   column: number;
@@ -69,8 +71,17 @@ const createDefaultResolverOptions = (
   },
 });
 
+type Key = string | number;
+
+interface Cache {
+  get<T>(key: Key): T | Promise<T> | void;
+  set<T>(key: Key, value: T, ttl?: number | string): unknown | Promise<unknown>;
+}
+
 export default class Renderer {
-  static renderWidgets(options: RenderOptions) {
+  constructor(private cacheImplementation: Cache) {}
+
+  renderWidgets(options: RenderOptions) {
     const widgetDataPromises = options.widgets.map(async (widgetConfig) => {
       if (!ensureWidgetExists(widgetConfig.id)) {
         console.error(`Widget with id ${widgetConfig.id} is not supported\n`);
@@ -87,7 +98,10 @@ export default class Renderer {
           ...widgetConfig.options,
         };
 
-        const widgetData = await widget.resolveData(resolverOptions);
+        const widgetData = await this.resolveWidgetData(
+          widget,
+          resolverOptions
+        );
 
         // TODO: Improve typings
         return widget.render(widgetData as any);
@@ -104,8 +118,39 @@ export default class Renderer {
     return Promise.all(widgetDataPromises);
   }
 
-  static async render(options: RenderOptions) {
-    const renderedWidgets = await Renderer.renderWidgets(options);
+  async resolveWidgetData<O>(
+    widget: Widget<O, any>,
+    resolverOptions: DefaultResolverOptions & O
+  ) {
+    const cacheConfiguration = widget.getCacheConfiguration();
+
+    if (!cacheConfiguration) {
+      return widget.resolveData(resolverOptions);
+    }
+
+    const cacheKey = cacheConfiguration.keyResolver
+      ? cacheConfiguration.keyResolver(resolverOptions)
+      : hashIt(resolverOptions);
+
+    const cachedWidgetData = await this.cacheImplementation.get(cacheKey);
+
+    if (cachedWidgetData) {
+      return cachedWidgetData;
+    }
+
+    const widgetData = await widget.resolveData(resolverOptions);
+
+    await this.cacheImplementation.set(
+      cacheKey,
+      widgetData,
+      cacheConfiguration.ttl
+    );
+
+    return widgetData;
+  }
+
+  async render(options: RenderOptions) {
+    const renderedWidgets = await this.renderWidgets(options);
 
     const layout = React.createElement(Layout, {
       widgetOptions: options.widgets,
@@ -118,8 +163,8 @@ export default class Renderer {
     return renderPage({ body, css });
   }
 
-  static async renderDevPage(options: RenderOptions) {
-    const renderedWidgets = await Renderer.renderWidgets(options);
+  async renderDevPage(options: RenderOptions) {
+    const renderedWidgets = await this.renderWidgets(options);
 
     const layout = React.createElement(Layout, {
       widgetOptions: options.widgets,

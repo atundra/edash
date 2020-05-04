@@ -17,6 +17,7 @@ import {
 import { pngStreamToBitmap } from './createBitmap';
 import Renderer, { WidgetOptions } from './renderer';
 import { getContentScreenshot } from './puppeteer';
+import NodeCache from 'node-cache';
 
 let imageLoadedTs = 0;
 
@@ -169,17 +170,20 @@ const createRenderOptions = (req: Request) => {
   };
 };
 
+const widgetDataCache = new NodeCache();
+const widgetRenderer = new Renderer(widgetDataCache);
+
 const layoutHtmlHandler: RequestHandler = async (req, res, next) => {
   const renderOptions = createRenderOptions(req);
 
-  const pageContent = await Renderer.render(renderOptions);
+  const pageContent = await widgetRenderer.render(renderOptions);
   res.type('html').send(pageContent);
 };
 
 const layoutPngHandler: RequestHandler = async (req, res, next) => {
   const renderOptions = createRenderOptions(req);
 
-  const pageContent = await Renderer.render(renderOptions);
+  const pageContent = await widgetRenderer.render(renderOptions);
 
   const screenshot = await getContentScreenshot(pageContent, {
     width: renderOptions.layout.width,
@@ -192,7 +196,7 @@ const layoutPngHandler: RequestHandler = async (req, res, next) => {
 const layoutBinHandler: RequestHandler = async (req, res, next) => {
   const renderOptions = createRenderOptions(req);
 
-  const pageContent = await Renderer.render(renderOptions);
+  const pageContent = await widgetRenderer.render(renderOptions);
 
   const screenshot = await getContentScreenshot(pageContent, {
     width: renderOptions.layout.width,
