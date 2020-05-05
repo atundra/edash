@@ -13,6 +13,7 @@ import {
   TRACKS,
   LAYOUT_COLUMNS_COUNT,
   LAYOUT_ROWS_COUNT,
+  CACHE_GENERATION,
 } from './config';
 import { pngStreamToBitmap } from './createBitmap';
 import Renderer, { WidgetOptions } from './renderer';
@@ -188,7 +189,7 @@ const widgetDataCache = cacheManager.caching({
     subdirs: true,
   },
 });
-const widgetRenderer = new Renderer(widgetDataCache);
+const widgetRenderer = new Renderer(widgetDataCache, CACHE_GENERATION);
 
 const layoutHtmlHandler: RequestHandler = async (req, res, next) => {
   const renderOptions = createRenderOptions(req);

@@ -3,7 +3,11 @@ import cacheManager from 'cache-manager';
 import fsStore from 'cache-manager-fs-hash';
 
 import Renderer, { WidgetOptions } from './renderer';
-import { LAYOUT_COLUMNS_COUNT, LAYOUT_ROWS_COUNT, TRACKS } from './config';
+import {
+  LAYOUT_COLUMNS_COUNT,
+  LAYOUT_ROWS_COUNT,
+  CACHE_GENERATION,
+} from './config';
 
 const PORT = 8080;
 
@@ -76,7 +80,7 @@ const widgetDataCache = cacheManager.caching({
     subdirs: true,
   },
 });
-const widgetRenderer = new Renderer(widgetDataCache);
+const widgetRenderer = new Renderer(widgetDataCache, CACHE_GENERATION);
 
 export const router = Router().get('/', async (req, res, next) => {
   const renderOptions = createRenderOptions(req);

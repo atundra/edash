@@ -85,7 +85,10 @@ interface Cache {
 }
 
 export default class Renderer {
-  constructor(private cacheImplementation: Cache) {}
+  constructor(
+    private cacheImplementation: Cache,
+    private cacheGeneration: number | string
+  ) {}
 
   renderWidgets(options: RenderOptions) {
     const widgetDataPromises = options.widgets.map(async (widgetConfig) => {
@@ -134,9 +137,10 @@ export default class Renderer {
       return widget.resolveData(resolverOptions);
     }
 
-    const cacheKey = cacheConfiguration.getCacheKey
+    const baseCacheKey = cacheConfiguration.getCacheKey
       ? cacheConfiguration.getCacheKey(resolverOptions)
       : hashIt(resolverOptions);
+    const cacheKey = baseCacheKey + this.cacheGeneration.toString();
 
     const cachedWidgetData = await this.cacheImplementation.get(cacheKey);
 
