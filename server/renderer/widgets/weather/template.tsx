@@ -39,6 +39,11 @@ const currentImgConatinerStyle = style({
   justifyContent: 'center',
   alignItems: 'center',
   marginRight: '1rem',
+  maxWidth: '4.5rem',
+});
+
+const currentImgDescriptionStyle = style({
+  textAlign: 'center',
 });
 
 const currentDataStyle = style({
@@ -92,7 +97,9 @@ export const Template = ({ weather: { current, daily } }: TemplateProps) => (
             className={currentImgStyle}
             src={getWeatherIcon(current.weather[0].icon)}
           />
-          <div>{upperCaseFirstLetter(current.weather[0].description)}</div>
+          <div className={currentImgDescriptionStyle}>
+            {upperCaseFirstLetter(current.weather[0].description)}
+          </div>
         </div>
       )}
       <div className={currentDataStyle}>
