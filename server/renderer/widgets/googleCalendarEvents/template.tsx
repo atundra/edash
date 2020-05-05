@@ -103,19 +103,5 @@ export const Template = ({ events }: Props) => (
         </div>
       );
     })}
-
-    <div className={itemsStyle}>
-      {events.map((event) => (
-        <div className={itemStyle} key={event.id}>
-          {event.start && event.start.dateTime && (
-            <div className={itemTitleStyle}>
-              {lightFormat(parseISO(event.start.dateTime), 'HH:mm')}
-            </div>
-          )}
-
-          <div className={summaryStyle}>{event.summary}</div>
-        </div>
-      ))}
-    </div>
   </div>
 );
