@@ -39,7 +39,7 @@ const currentImgConatinerStyle = style({
   justifyContent: 'center',
   alignItems: 'center',
   marginRight: '1rem',
-  maxWidth: '4.5rem',
+  maxWidth: '4.7rem',
 });
 
 const currentImgDescriptionStyle = style({
