@@ -13,11 +13,13 @@ import {
   TRACKS,
   LAYOUT_COLUMNS_COUNT,
   LAYOUT_ROWS_COUNT,
+  CACHE_GENERATION,
 } from './config';
 import { pngStreamToBitmap } from './createBitmap';
 import Renderer, { WidgetOptions } from './renderer';
 import { getContentScreenshot } from './puppeteer';
-import NodeCache from 'node-cache';
+import cacheManager from 'cache-manager';
+import fsStore from 'cache-manager-fs-hash';
 
 let imageLoadedTs = 0;
 
@@ -179,8 +181,15 @@ const createRenderOptions = (req: Request) => {
   };
 };
 
-const widgetDataCache = new NodeCache();
-const widgetRenderer = new Renderer(widgetDataCache);
+const widgetDataCache = cacheManager.caching({
+  store: fsStore,
+  ttl: 0,
+  options: {
+    path: 'widgetdatacache',
+    subdirs: true,
+  },
+});
+const widgetRenderer = new Renderer(widgetDataCache, CACHE_GENERATION);
 
 const layoutHtmlHandler: RequestHandler = async (req, res, next) => {
   const renderOptions = createRenderOptions(req);

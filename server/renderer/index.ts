@@ -77,11 +77,18 @@ type Key = string | number;
 
 interface Cache {
   get<T>(key: Key): T | Promise<T> | void;
-  set<T>(key: Key, value: T, ttl?: number | string): unknown | Promise<unknown>;
+  set<T>(
+    key: Key,
+    value: T,
+    cacheOptions: { ttl: number }
+  ): unknown | Promise<unknown>;
 }
 
 export default class Renderer {
-  constructor(private cacheImplementation: Cache) {}
+  constructor(
+    private cacheImplementation: Cache,
+    private cacheGeneration: number | string
+  ) {}
 
   renderWidgets(options: RenderOptions) {
     const widgetDataPromises = options.widgets.map(async (widgetConfig) => {
@@ -130,9 +137,10 @@ export default class Renderer {
       return widget.resolveData(resolverOptions);
     }
 
-    const cacheKey = cacheConfiguration.getCacheKey
+    const baseCacheKey = cacheConfiguration.getCacheKey
       ? cacheConfiguration.getCacheKey(resolverOptions)
       : hashIt(resolverOptions);
+    const cacheKey = baseCacheKey + this.cacheGeneration.toString();
 
     const cachedWidgetData = await this.cacheImplementation.get(cacheKey);
 
@@ -142,11 +150,9 @@ export default class Renderer {
 
     const widgetData = await widget.resolveData(resolverOptions);
 
-    await this.cacheImplementation.set(
-      cacheKey,
-      widgetData,
-      cacheConfiguration.ttl
-    );
+    await this.cacheImplementation.set(cacheKey, widgetData, {
+      ttl: cacheConfiguration.ttl,
+    });
 
     return widgetData;
   }

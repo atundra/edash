@@ -6,6 +6,7 @@
     "noImplicitAny": true,
     "strict": true,
     "esModuleInterop": true,
-    "jsx": "react"
+    "jsx": "react",
+    "typeRoots": ["./node_modules/@types", "./definitions"]
   }
 }
