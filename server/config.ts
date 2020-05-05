@@ -56,3 +56,6 @@ export const WEATHER_LON =
   process.env.WEATHER_LAT !== undefined
     ? Number(process.env.WEATHER_LAT)
     : 37.6173;
+
+// Increment to discard current widget data cache
+export const CACHE_GENERATION = 1;
