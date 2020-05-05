@@ -42,7 +42,7 @@ export const itemsStyle = style({
 });
 
 export const containerStyle = style({
-  fontFamily: 'font-family: Arial, sans-serif;',
+  fontFamily: 'Arial, sans-serif;',
   height: '100%',
 });
 
