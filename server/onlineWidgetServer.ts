@@ -10,31 +10,32 @@ const RENDER_CONFIG: WidgetOptions[] = [
   {
     id: 'hello',
     position: {
-      column: 1,
+      column: 12,
       row: 1,
       colspan: 5,
-      rowspan: 6,
+      rowspan: 3,
     },
   },
   {
     id: 'googleCalendarEvents',
     position: {
-      column: 1,
-      row: 10,
-      colspan: 16,
-      rowspan: 3,
+      column: 12,
+      row: 4,
+      colspan: 5,
+      rowspan: 9,
     },
   },
   {
     id: 'parcelMap',
     position: {
-      column: 6,
+      column: 1,
       row: 1,
       colspan: 11,
       rowspan: 9,
     },
     options: {
-      tracks: TRACKS,
+      // tracks: TRACKS,
+      tracks: [],
     },
   },
 ];

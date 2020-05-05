@@ -44,6 +44,7 @@ export const itemsStyle = style({
 export const containerStyle = style({
   fontFamily: 'Arial, sans-serif;',
   height: '100%',
+  padding: '2px',
 });
 
 export const summaryStyle = style({
