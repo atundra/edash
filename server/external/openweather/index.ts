@@ -29,6 +29,7 @@ const getOneCallUrl = ({
   current,
   hourly,
   daily,
+  units,
 }: OneCallConfig) =>
   createUrl(
     'https://api.openweathermap.org/data/2.5/onecall',
@@ -36,6 +37,7 @@ const getOneCallUrl = ({
       lat,
       lon,
       appId,
+      units,
       exclude: Object.entries({
         current,
         hourly,
@@ -49,7 +51,7 @@ const getOneCallUrl = ({
   );
 
 // https://openweathermap.org/api/one-call-api
-const oneCall = async <Config extends OneCallConfig>(config: Config) =>
+export const oneCall = async <Config extends OneCallConfig>(config: Config) =>
   getDataLoader<OneCallResponse<Config>>()(getOneCallUrl(config), {
     httpsAgent: openWeatherApiAgent,
   });

@@ -52,7 +52,7 @@ type OneCallHourlyData<U extends Units> = {
   wind_speed: Speed<U>; // Wind speed. Unit Default: meter/sec, Metric: meter/sec, Imperial: miles/hour.
   wind_gust: Speed<U>; // Wind gust. Unit Default: meter/sec, Metric: meter/sec, Imperial: miles/hour.
   wind_deg: Degrees; // Wind direction, degrees (meteorological)
-  rain: PosInteger; // Precipitation volume, mm
+  rain: Record<string, PosInteger>; // Precipitation volume, mm, {1h: 12.2}
   snow: PosInteger; // Snow volume, mm
   weather: WeatherCondition[];
 };
@@ -76,7 +76,7 @@ type OneCallCurrentResponse<U extends Units> = OneCallHourlyData<U> & {
 // Hourly forecast weather data API response
 type OneCallHourlyResponse<U extends Units> = OneCallHourlyData<U>[];
 
-type OneCallDailyResponse<U extends Units> = OneCallCurrentResponse<U> & {
+type OneCallDaySpecific<U extends Units> = {
   temp: {
     morn: Temp<U>; // Morning temperature. Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit. How to change units format
     day: Temp<U>; // Day temperature. Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit.
@@ -92,6 +92,14 @@ type OneCallDailyResponse<U extends Units> = OneCallCurrentResponse<U> & {
     night: Temp<U>; // Night temperature.Temperature. This temperature parameter accounts for the human perception of weather. Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit.
   };
 };
+
+type OneCallDayResponse<U extends Units> = Omit<
+  OneCallCurrentResponse<U>,
+  keyof OneCallDaySpecific<U>
+> &
+  OneCallDaySpecific<U>;
+
+type OneCallDailyResponse<U extends Units> = OneCallDayResponse<U>[];
 
 export type OneCallResponse<Config extends OneCallConfig> = {
   lat: string;

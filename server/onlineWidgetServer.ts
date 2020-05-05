@@ -38,6 +38,15 @@ const RENDER_CONFIG: WidgetOptions[] = [
       tracks: [],
     },
   },
+  {
+    id: 'weather',
+    position: {
+      column: 1,
+      row: 10,
+      colspan: 11,
+      rowspan: 3,
+    },
+  },
 ];
 
 const createRenderOptions = (req: Request) => {

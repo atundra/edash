@@ -46,3 +46,13 @@ export const LAYOUT_COLUMNS_COUNT = 16;
 export const LAYOUT_ROWS_COUNT = 12;
 
 export const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY;
+
+// Default latlon is Moscow
+export const WEATHER_LAT =
+  process.env.WEATHER_LAT !== undefined
+    ? Number(process.env.WEATHER_LAT)
+    : 55.7558;
+export const WEATHER_LON =
+  process.env.WEATHER_LAT !== undefined
+    ? Number(process.env.WEATHER_LAT)
+    : 37.6173;
