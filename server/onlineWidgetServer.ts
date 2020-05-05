@@ -1,5 +1,6 @@
 import express, { Router, Request } from 'express';
-import NodeCache from 'node-cache';
+import cacheManager from 'cache-manager';
+import fsStore from 'cache-manager-fs-hash';
 
 import Renderer, { WidgetOptions } from './renderer';
 import { LAYOUT_COLUMNS_COUNT, LAYOUT_ROWS_COUNT, TRACKS } from './config';
@@ -67,7 +68,14 @@ const createRenderOptions = (req: Request) => {
   };
 };
 
-const widgetDataCache = new NodeCache();
+const widgetDataCache = cacheManager.caching({
+  store: fsStore,
+  ttl: 0,
+  options: {
+    path: 'widgetdatacache',
+    subdirs: true,
+  },
+});
 const widgetRenderer = new Renderer(widgetDataCache);
 
 export const router = Router().get('/', async (req, res, next) => {
