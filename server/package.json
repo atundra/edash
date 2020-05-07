@@ -6,6 +6,7 @@
   "scripts": {
     "start": "ts-node index.ts",
     "dev": "ts-node-dev onlineWidgetServer.ts",
+    "typecheck": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
