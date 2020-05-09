@@ -20,6 +20,8 @@ import Renderer, { WidgetOptions } from './renderer';
 import { getContentScreenshot } from './puppeteer';
 import cacheManager from 'cache-manager';
 import fsStore from 'cache-manager-fs-hash';
+import * as either from 'fp-ts/lib/Either';
+import * as taskEither from 'fp-ts/lib/TaskEither';
 
 let imageLoadedTs = 0;
 
@@ -128,28 +130,28 @@ const EXAMPLE_CONFIG: WidgetOptions[] = [
   {
     id: 'hello',
     position: {
-      column: 12,
-      row: 1,
-      colspan: 5,
-      rowspan: 3,
+      x: 12,
+      y: 1,
+      width: 5,
+      height: 3,
     },
   },
   {
     id: 'googleCalendarEvents',
     position: {
-      column: 12,
-      row: 4,
-      colspan: 5,
-      rowspan: 9,
+      x: 12,
+      y: 4,
+      width: 5,
+      height: 9,
     },
   },
   {
     id: 'parcelMap',
     position: {
-      column: 1,
-      row: 1,
-      colspan: 11,
-      rowspan: 9,
+      x: 1,
+      y: 1,
+      width: 11,
+      height: 9,
     },
     options: {
       tracks: TRACKS,
@@ -158,10 +160,10 @@ const EXAMPLE_CONFIG: WidgetOptions[] = [
   {
     id: 'weather',
     position: {
-      column: 1,
-      row: 10,
-      colspan: 11,
-      rowspan: 3,
+      x: 1,
+      y: 10,
+      width: 11,
+      height: 3,
     },
   },
 ];
@@ -198,37 +200,48 @@ const layoutHtmlHandler: RequestHandler = async (req, res, next) => {
   res.type('html').send(pageContent);
 };
 
-const layoutPngHandler: RequestHandler = async (req, res, next) => {
+const layoutPngHandler: RequestHandler<{}, Buffer> = async (req, res, next) => {
   const renderOptions = createRenderOptions(req);
 
   const pageContent = await widgetRenderer.render(renderOptions);
 
-  const screenshot = await getContentScreenshot(pageContent, {
+  const screenshotTask = getContentScreenshot(pageContent, {
     width: renderOptions.layout.width,
     height: renderOptions.layout.height,
   });
 
-  res.type('png').send(screenshot);
+  return screenshotTask().then(
+    either.fold(
+      (err) => res.sendStatus(500),
+      (buffer) => res.type('png').send(buffer)
+    )
+  );
 };
 
-const layoutBinHandler: RequestHandler = async (req, res, next) => {
+const layoutBinHandler: RequestHandler<{}, Buffer> = async (req, res, next) => {
   const renderOptions = createRenderOptions(req);
 
   const pageContent = await widgetRenderer.render(renderOptions);
 
-  const screenshot = await getContentScreenshot(pageContent, {
+  const screenshotTask = getContentScreenshot(pageContent, {
     width: renderOptions.layout.width,
     height: renderOptions.layout.height,
   });
 
-  const binScreenshot = await convertBuffer(screenshot, [
-    'PNG:-',
-    '-dither',
-    'Floyd-Steinberg',
-    'MONO:-',
-  ]);
+  const convertBufferTask = taskEither.tryCatchK(
+    (buffer: Buffer) =>
+      convertBuffer(buffer, ['PNG:-', '-dither', 'Floyd-Steinberg', 'MONO:-']),
+    either.toError
+  );
 
-  res.send(binScreenshot);
+  const task = taskEither.chain(convertBufferTask)(screenshotTask);
+
+  return task().then(
+    either.fold(
+      (err) => res.sendStatus(500),
+      (buffer) => res.send(buffer)
+    )
+  );
 };
 
 export const router = Router()

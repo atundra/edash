@@ -15,28 +15,28 @@ const RENDER_CONFIG: WidgetOptions[] = [
   {
     id: 'hello',
     position: {
-      column: 12,
-      row: 1,
-      colspan: 5,
-      rowspan: 3,
+      x: 12,
+      y: 1,
+      width: 5,
+      height: 3,
     },
   },
   {
     id: 'googleCalendarEvents',
     position: {
-      column: 12,
-      row: 4,
-      colspan: 5,
-      rowspan: 9,
+      x: 12,
+      y: 4,
+      width: 5,
+      height: 9,
     },
   },
   {
     id: 'parcelMap',
     position: {
-      column: 1,
-      row: 1,
-      colspan: 11,
-      rowspan: 9,
+      x: 1,
+      y: 1,
+      width: 11,
+      height: 9,
     },
     options: {
       // tracks: TRACKS,
@@ -46,10 +46,10 @@ const RENDER_CONFIG: WidgetOptions[] = [
   {
     id: 'weather',
     position: {
-      column: 1,
-      row: 10,
-      colspan: 11,
-      rowspan: 3,
+      x: 1,
+      y: 10,
+      width: 11,
+      height: 3,
     },
   },
 ];

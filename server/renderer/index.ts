@@ -8,10 +8,10 @@ import Layout from './layout';
 import Widget from './widget';
 
 export type WidgetPosition = {
-  column: number;
-  row: number;
-  colspan: number;
-  rowspan: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 };
 
 export type WidgetOptions = {
@@ -90,41 +90,41 @@ export default class Renderer {
     private cacheGeneration: number | string
   ) {}
 
-  renderWidgets(options: RenderOptions) {
-    const widgetDataPromises = options.widgets.map(async (widgetConfig) => {
-      if (!ensureWidgetExists(widgetConfig.id)) {
-        console.error(`Widget with id ${widgetConfig.id} is not supported\n`);
+  renderWidgets(options: RenderOptions): Promise<React.ReactNodeArray> {
+    return Promise.all(
+      options.widgets.map(async (widgetConfig) => {
+        if (!ensureWidgetExists(widgetConfig.id)) {
+          console.error(`Widget with id ${widgetConfig.id} is not supported\n`);
 
-        return null;
-      }
+          return null;
+        }
 
-      const widget = WIDGETS_REGISTRY[widgetConfig.id];
+        const widget = WIDGETS_REGISTRY[widgetConfig.id];
 
-      try {
-        // TODO: Improve typings
-        const resolverOptions = {
-          ...createDefaultResolverOptions(options, widgetConfig),
-          ...widgetConfig.options,
-        };
+        try {
+          // TODO: Improve typings
+          const resolverOptions = {
+            ...createDefaultResolverOptions(options, widgetConfig),
+            ...widgetConfig.options,
+          };
 
-        const widgetData = await this.resolveWidgetData(
-          widget,
-          resolverOptions
-        );
+          const widgetData = await this.resolveWidgetData(
+            widget,
+            resolverOptions
+          );
 
-        // TODO: Improve typings
-        return widget.render(widgetData as any);
-      } catch (error) {
-        console.error(
-          `Error while rendering widget ${widgetConfig.id}\n`,
-          error
-        );
+          // TODO: Improve typings
+          return widget.render(widgetData as any);
+        } catch (error) {
+          console.error(
+            `Error while rendering widget ${widgetConfig.id}\n`,
+            error
+          );
 
-        return widget.renderFallback(error);
-      }
-    });
-
-    return Promise.all(widgetDataPromises);
+          return widget.renderFallback(error);
+        }
+      })
+    );
   }
 
   async resolveWidgetData<O>(
@@ -158,12 +158,12 @@ export default class Renderer {
   }
 
   async render(options: RenderOptions) {
-    const renderedWidgets = await this.renderWidgets(options);
+    const widgets = await this.renderWidgets(options);
 
     const layout = React.createElement(Layout, {
       widgetOptions: options.widgets,
       layoutProperties: options.layout,
-      renderedWidgets,
+      widgets,
     });
     const body = ReactDOMServer.renderToStaticMarkup(layout);
     const css = getStyles();
@@ -172,12 +172,12 @@ export default class Renderer {
   }
 
   async renderDevPage(options: RenderOptions) {
-    const renderedWidgets = await this.renderWidgets(options);
+    const widgets = await this.renderWidgets(options);
 
     const layout = React.createElement(Layout, {
       widgetOptions: options.widgets,
       layoutProperties: options.layout,
-      renderedWidgets,
+      widgets,
     });
 
     const devCss =
