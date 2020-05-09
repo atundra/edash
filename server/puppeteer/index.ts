@@ -7,35 +7,37 @@ import {
   chain,
   chainFirst,
 } from 'fp-ts/lib/TaskEither';
-import { toError } from 'fp-ts/lib/Either';
+import { toError, Either, left, right } from 'fp-ts/lib/Either';
 import { pipe } from 'fp-ts/lib/pipeable';
+import { map } from 'fp-ts/lib/Array';
+import { Option, some, none, isSome } from 'fp-ts/lib/Option';
+import { error } from 'fp-ts/lib/Console';
 
-type ImageLoadError = { type: 'error'; src: string };
+// Some string if error and None if success
+type ImageLoadFail = Option<string>;
 
-const waitForImagesLoad = (page: Page) =>
-  page.evaluate(() => {
-    const selectors = Array.from(document.querySelectorAll('img'));
+const isImageLoadFailed = (img: HTMLImageElement): Promise<ImageLoadFail> => {
+  if (img.complete) {
+    if (img.naturalHeight === 0 && img.naturalWidth === 0) {
+      return Promise.resolve(some(img.src));
+    }
 
-    return Promise.all(
-      selectors.map((img) => {
-        if (img.complete) {
-          if (img.naturalHeight === 0 && img.naturalWidth === 0) {
-            return { type: 'error', src: img.src } as ImageLoadError;
-          }
+    return Promise.resolve(none);
+  }
 
-          return null;
-        }
-
-        return new Promise((resolve) => {
-          img.addEventListener('load', resolve);
-          // We don't want to fail the whole layout because of one image
-          img.addEventListener('error', () =>
-            resolve({ type: 'error', src: img.src })
-          );
-        }) as Promise<Event | ImageLoadError>;
-      })
-    );
+  return new Promise((resolve) => {
+    img.addEventListener('load', () => resolve(none));
+    img.addEventListener('error', () => resolve(some(img.src)));
   });
+};
+
+const waitForImagesLoad = () =>
+  pipe(
+    document.querySelectorAll('img'),
+    (list) => Array.from(list),
+    map(isImageLoadFailed),
+    (promises) => Promise.all(promises)
+  );
 
 const defaultTryCatchK = <A extends ReadonlyArray<unknown>, B>(
   f: (...a: A) => Promise<B>
@@ -57,14 +59,11 @@ export const getContentScreenshot = (
       page.setContent(pageContent, { waitUntil: ['load'] })
     ),
     chainFirstDefaultTryCatchK((page) =>
-      waitForImagesLoad(page).then((imageEvents) =>
-        imageEvents.forEach((event) => {
-          if (event && event.type === 'error') {
-            console.error(
-              `Image failed to load: ${(event as ImageLoadError).src}`
-            );
-          }
-        })
+      page.evaluate(waitForImagesLoad).then((imageLoadErrors) =>
+        imageLoadErrors
+          .filter(isSome)
+          .map((err) => error(`Image failed to load: ${err}`))
+          .forEach((io) => io())
       )
     ),
     chain(
