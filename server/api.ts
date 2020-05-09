@@ -238,7 +238,7 @@ const layoutBinHandler: RequestHandler<{}, Buffer> = async (req, res, next) => {
 
   return task().then(
     either.fold(
-      (err) => res.status(500).send(undefined),
+      (err) => res.sendStatus(500),
       (buffer) => res.send(buffer)
     )
   );
