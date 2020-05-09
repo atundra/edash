@@ -41,6 +41,10 @@ const defaultTryCatchK = <A extends ReadonlyArray<unknown>, B>(
   f: (...a: A) => Promise<B>
 ) => tryCatchK<Error, A, B>(f, toError);
 
+const chainFirstDefaultTryCatchK = <A extends unknown, B>(
+  f: (a: A) => Promise<B>
+) => chainFirst<Error, A, B>(tryCatchK(f, toError));
+
 export const getContentScreenshot = (
   pageContent: string,
   { width, height }: { width: number; height: number }
@@ -48,23 +52,19 @@ export const getContentScreenshot = (
   pipe(
     browsermanager.runBrowser,
     chain(defaultTryCatchK((browser) => browser.newPage())),
-    chainFirst(defaultTryCatchK((page) => page.setViewport({ width, height }))),
-    chainFirst(
-      defaultTryCatchK((page) =>
-        page.setContent(pageContent, { waitUntil: ['load'] })
-      )
+    chainFirstDefaultTryCatchK((page) => page.setViewport({ width, height })),
+    chainFirstDefaultTryCatchK((page) =>
+      page.setContent(pageContent, { waitUntil: ['load'] })
     ),
-    chainFirst(
-      defaultTryCatchK((page) =>
-        waitForImagesLoad(page).then((imageEvents) =>
-          imageEvents.forEach((event) => {
-            if (event && event.type === 'error') {
-              console.error(
-                `Image failed to load: ${(event as ImageLoadError).src}`
-              );
-            }
-          })
-        )
+    chainFirstDefaultTryCatchK((page) =>
+      waitForImagesLoad(page).then((imageEvents) =>
+        imageEvents.forEach((event) => {
+          if (event && event.type === 'error') {
+            console.error(
+              `Image failed to load: ${(event as ImageLoadError).src}`
+            );
+          }
+        })
       )
     ),
     chain(
@@ -74,6 +74,6 @@ export const getContentScreenshot = (
           .then((screenshot) => [page, screenshot] as const)
       )
     ),
-    chainFirst(defaultTryCatchK(([page]) => page.close())),
+    chainFirstDefaultTryCatchK(([page]) => page.close()),
     teMap(([, buffer]) => buffer)
   );
