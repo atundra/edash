@@ -5,7 +5,7 @@ import { WidgetOptions, WidgetPosition, LayoutProperties } from '.';
 
 type Props = {
   widgetOptions: WidgetOptions[];
-  renderedWidgets: React.ReactNode[];
+  widgets: React.ReactNode[];
   layoutProperties: LayoutProperties;
 };
 
@@ -19,22 +19,18 @@ const getGridContainerStyles = (layoutProperties: LayoutProperties) =>
   });
 
 const getWidgetStyle = (position: WidgetPosition): CSSProperties => ({
-  gridColumnStart: position.column,
-  gridColumnEnd: position.column + position.colspan,
-  gridRowStart: position.row,
-  gridRowEnd: position.row + position.rowspan,
+  gridColumnStart: position.x,
+  gridColumnEnd: position.x + position.width,
+  gridRowStart: position.y,
+  gridRowEnd: position.y + position.height,
   overflow: 'hidden',
 });
 
-const Layout = ({
-  widgetOptions,
-  renderedWidgets,
-  layoutProperties,
-}: Props) => (
+const Layout = ({ widgetOptions, widgets, layoutProperties }: Props) => (
   <div className={getGridContainerStyles(layoutProperties)}>
     {widgetOptions.map(({ position }, i) => (
       <div key={i} style={getWidgetStyle(position)}>
-        {renderedWidgets[i]}
+        {widgets[i]}
       </div>
     ))}
   </div>

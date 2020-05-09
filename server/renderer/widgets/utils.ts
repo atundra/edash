@@ -8,7 +8,7 @@ export const getWidgetDimensions = (
   const cellHeight = layout.height / layout.rows;
 
   return {
-    width: widgetPosition.colspan * cellWidth,
-    height: widgetPosition.rowspan * cellHeight,
+    width: widgetPosition.width * cellWidth,
+    height: widgetPosition.height * cellHeight,
   };
 };
