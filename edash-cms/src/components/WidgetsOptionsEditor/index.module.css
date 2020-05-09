@@ -1,0 +1,13 @@
+.root {
+    height: 100%;
+    width: 100%;
+    resize: none;
+    box-sizing: border-box;
+    margin: 0;
+    border: none;
+    border-top: 1px black solid;
+}
+
+.error {
+    background-color: rgba(255, 0, 0, 0.3);
+}

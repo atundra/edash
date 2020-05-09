@@ -1,0 +1,19 @@
+.root {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    border-right: 1px black solid;
+    padding: 0 0 20px 0;
+    box-sizing: border-box;
+}
+
+.widgetBox {
+    cursor: grab;
+    text-align: center;
+    padding: 35px 0;
+    width: 70%;
+    border: 1px grey dotted;
+    user-select: none;
+    margin-top: 20px;
+}
