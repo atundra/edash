@@ -212,7 +212,7 @@ const layoutPngHandler: RequestHandler<{}, Buffer> = async (req, res, next) => {
 
   return screenshotTask().then(
     either.fold(
-      (err) => res.status(500).send(undefined),
+      (err) => res.sendStatus(500),
       (buffer) => res.type('png').send(buffer)
     )
   );
