@@ -4,10 +4,13 @@ import { trackLastPosList } from './track';
 import { filterOutNulls, groupLatLonByDistance } from './utils';
 import { CLUSTER_POINTS_MAX_DISTANCE_M } from './config';
 
-export const generate = (tracks: string[]) =>
+export const generate = (
+  tracks: string[],
+  size: { width: number; height: number }
+) =>
   trackLastPosList(tracks)
     .then(filterOutNulls)
     .then(geocodeList)
     .then(filterOutNulls)
     .then(groupLatLonByDistance(CLUSTER_POINTS_MAX_DISTANCE_M))
-    .then(getMapUrlForClusters);
+    .then((clusters) => getMapUrlForClusters(clusters, size));

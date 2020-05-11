@@ -1,17 +1,27 @@
-import { Page } from 'puppeteer';
-import { Router, RequestHandler } from 'express';
+import { Router, RequestHandler, Request } from 'express';
 import { generate as generateMapUrl } from './mapUrl';
 import path from 'path';
 import {
   convertToBMP as convertImageToBMP,
   convertSimple as convertImageSimple,
+  convertBuffer,
 } from './image';
 import { exists as isFileExists, load as loadFile } from './file';
 import { PathLike, createReadStream } from 'fs';
-import { IMAGE_MAX_AGE, TRACKS } from './config';
+import {
+  IMAGE_MAX_AGE,
+  TRACKS,
+  LAYOUT_COLUMNS_COUNT,
+  LAYOUT_ROWS_COUNT,
+  CACHE_GENERATION,
+} from './config';
 import { pngStreamToBitmap } from './createBitmap';
-import * as browsermanager from './browsermanager';
 import Renderer, { WidgetOptions } from './renderer';
+import { getContentScreenshot } from './puppeteer';
+import cacheManager from 'cache-manager';
+import fsStore from 'cache-manager-fs-hash';
+import * as either from 'fp-ts/lib/Either';
+import * as taskEither from 'fp-ts/lib/TaskEither';
 
 let imageLoadedTs = 0;
 
@@ -34,7 +44,7 @@ const updateMapImageIfNeeded = async (filename: string): Promise<boolean> => {
     return false;
   }
 
-  const url = await generateMapUrl(TRACKS);
+  const url = await generateMapUrl(TRACKS, { width: 640, height: 384 });
   await loadFile({ url, output: filename });
   console.log('Image loaded');
 
@@ -113,14 +123,6 @@ const randomBinHandler: RequestHandler = async (req, res, next) => {
   res.send(bitmap);
 };
 
-const waitForPageLoad = async (page: Page) => {
-  const readyState = await page.evaluate(() => document.readyState);
-
-  if (readyState !== 'complete') {
-    return new Promise((resolve) => page.once('load', resolve));
-  }
-};
-
 const DEFAULT_WIDTH = 800;
 const DEFAULT_HEIGHT = 480;
 
@@ -128,62 +130,118 @@ const EXAMPLE_CONFIG: WidgetOptions[] = [
   {
     id: 'hello',
     position: {
-      column: 1,
-      row: 1,
-      colspan: 5,
-      rowspan: 6,
+      x: 12,
+      y: 1,
+      width: 5,
+      height: 3,
     },
   },
   {
-    id: 'hello',
+    id: 'googleCalendarEvents',
     position: {
-      column: 1,
-      row: 7,
-      colspan: 5,
-      rowspan: 6,
+      x: 12,
+      y: 4,
+      width: 5,
+      height: 9,
     },
   },
   {
-    id: 'hello',
+    id: 'parcelMap',
     position: {
-      column: 6,
-      row: 1,
-      colspan: 5,
-      rowspan: 12,
+      x: 1,
+      y: 1,
+      width: 11,
+      height: 9,
+    },
+    options: {
+      tracks: TRACKS,
+    },
+  },
+  {
+    id: 'weather',
+    position: {
+      x: 1,
+      y: 10,
+      width: 11,
+      height: 3,
     },
   },
 ];
 
-const layoutHandler: RequestHandler = async (req, res, next) => {
+const createRenderOptions = (req: Request) => {
   const width = Number(req.query.width) || DEFAULT_WIDTH;
-  const height = Number(req.query.heigh) || DEFAULT_HEIGHT;
-  const debug = req.query.debug;
+  const height = Number(req.query.height) || DEFAULT_HEIGHT;
 
-  const renderOptions = { widgets: EXAMPLE_CONFIG };
+  return {
+    widgets: EXAMPLE_CONFIG,
+    layout: {
+      width,
+      height,
+      columns: LAYOUT_COLUMNS_COUNT,
+      rows: LAYOUT_ROWS_COUNT,
+    },
+  };
+};
 
-  const pageContent = await Renderer.render(renderOptions);
+const widgetDataCache = cacheManager.caching({
+  store: fsStore,
+  ttl: 0,
+  options: {
+    path: 'widgetdatacache',
+    subdirs: true,
+  },
+});
+const widgetRenderer = new Renderer(widgetDataCache, CACHE_GENERATION);
 
-  if (debug) {
-    return res.send(pageContent);
-  }
+const layoutHtmlHandler: RequestHandler = async (req, res, next) => {
+  const renderOptions = createRenderOptions(req);
 
-  const browser = await browsermanager.getBrowser();
-  const page = await browser.newPage();
+  const pageContent = await widgetRenderer.render(renderOptions);
+  res.type('html').send(pageContent);
+};
 
-  await page.setViewport({
-    width,
-    height,
+const layoutPngHandler: RequestHandler<{}, Buffer> = async (req, res, next) => {
+  const renderOptions = createRenderOptions(req);
+
+  const pageContent = await widgetRenderer.render(renderOptions);
+
+  const screenshotTask = getContentScreenshot(pageContent, {
+    width: renderOptions.layout.width,
+    height: renderOptions.layout.height,
   });
 
-  page.setContent(pageContent);
+  return screenshotTask().then(
+    either.fold(
+      (err) => res.sendStatus(500),
+      (buffer) => res.type('png').send(buffer)
+    )
+  );
+};
 
-  await waitForPageLoad(page);
+const layoutBinHandler: RequestHandler<{}, Buffer> = async (req, res, next) => {
+  const renderOptions = createRenderOptions(req);
 
-  const screenshot = await page.screenshot();
+  const pageContent = await widgetRenderer.render(renderOptions);
 
-  page.close();
+  const screenshotTask = getContentScreenshot(pageContent, {
+    width: renderOptions.layout.width,
+    height: renderOptions.layout.height,
+  });
 
-  res.type('png').send(screenshot);
+  const convertBufferTask = taskEither.tryCatchK(
+    (buffer: Buffer) =>
+      convertBuffer(buffer, ['PNG:-', '-dither', 'Floyd-Steinberg', 'MONO:-']),
+    either.toError
+  );
+
+  const task = taskEither.chain(convertBufferTask)(screenshotTask);
+
+  return task().then(
+    either.fold(
+      (err) => res.sendStatus(500),
+      (buffer) => res.send(buffer)
+    )
+  );
 };
 
 export const router = Router()
@@ -192,4 +250,6 @@ export const router = Router()
   .get('/image.bmp', bmpHandler)
   .get('/random.bin', randomBinHandler)
   .get('/random', randomHandler)
-  .get('/layout', layoutHandler);
+  .get('/layout.png', layoutPngHandler)
+  .get('/layout.html', layoutHtmlHandler)
+  .get('/layout.bin', layoutBinHandler);

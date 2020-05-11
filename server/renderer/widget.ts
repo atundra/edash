@@ -1,35 +1,53 @@
 import React from 'react';
 
-export type WidgetOptions<O, P> = {
+import { DefaultResolverOptions } from '.';
+
+export type CacheConfiguration<O extends {}> = {
+  /**
+   * Time to cache data in seconds. 0 - unlimited
+   */
+  ttl: number;
+  /**
+   * Function calculating cache key
+   */
+  getCacheKey?: (resolverOptions: DefaultResolverOptions & O) => string;
+};
+
+export type WidgetDefinition<O extends {}, P> = {
   /**
    * @throws Error
    */
-  dataResolver: (options?: O) => P | Promise<P>;
+  dataResolver: (resolverOptions: DefaultResolverOptions & O) => P | Promise<P>;
   template: React.FunctionComponent<P> | React.ComponentClass<P>;
   // TODO: Improve fallback typings
   fallback?: React.FunctionComponent<any> | React.ComponentClass<any>;
+  cache?: CacheConfiguration<O>;
 };
 
-export default class Widget<O, P> {
-  constructor(private widgetOptions: WidgetOptions<O, P>) {}
+export default class Widget<O extends {}, P> {
+  constructor(private definition: WidgetDefinition<O, P>) {}
 
-  resolveData(options?: O) {
-    return this.widgetOptions.dataResolver(options);
+  resolveData(resolverOptions: DefaultResolverOptions & O) {
+    return this.definition.dataResolver(resolverOptions);
   }
 
   render(props: P) {
-    const { template } = this.widgetOptions;
+    const { template } = this.definition;
 
     return React.createElement(template, props);
   }
 
   renderFallback(error: any) {
-    const { fallback } = this.widgetOptions;
+    const { fallback } = this.definition;
 
     if (!fallback) {
       return null;
     }
 
     return React.createElement(fallback, error);
+  }
+
+  getCacheConfiguration() {
+    return this.definition.cache;
   }
 }
