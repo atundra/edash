@@ -2,7 +2,8 @@ import express, { Router, Request } from 'express';
 import cacheManager from 'cache-manager';
 import fsStore from 'cache-manager-fs-hash';
 
-import Renderer, { WidgetOptions } from './renderer';
+import Renderer from './renderer';
+import { WidgetConfig } from './renderer/types';
 import {
   LAYOUT_COLUMNS_COUNT,
   LAYOUT_ROWS_COUNT,
@@ -11,7 +12,7 @@ import {
 
 const PORT = 8080;
 
-const RENDER_CONFIG: WidgetOptions[] = [
+const RENDER_CONFIG: WidgetConfig[] = [
   {
     id: 'hello',
     position: {
