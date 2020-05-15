@@ -1,5 +1,5 @@
 import { geocodeList } from './external/geocoder';
-import { getMapUrlForClusters } from './gmaps';
+import { getMapUrlForClusters } from './external/google/staticmaps';
 import { trackLastPosList } from './external/track24';
 import { filterOutNulls, groupLatLonByDistance } from './utils';
 import { CLUSTER_POINTS_MAX_DISTANCE_M } from './config';
