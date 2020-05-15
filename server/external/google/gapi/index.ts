@@ -74,10 +74,7 @@ const authorize = (callback: OauthCallback) => {
   });
 };
 
-const getAccessToken = (
-  oAuth2Client: OAuth2Client,
-  callback: OauthCallback
-) => {
+const getAccessToken = (oAuth2Client: OAuth2Client, callback: OauthCallback) => {
   const authUrl = oAuth2Client.generateAuthUrl({
     access_type: 'offline',
     scope: SCOPES,

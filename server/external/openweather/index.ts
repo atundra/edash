@@ -14,23 +14,13 @@ const openWeatherApiAgent = new https.Agent({
         all: true,
       },
       (err, addresses) => {
-        const result = addresses.filter(
-          ({ address }) => address !== '188.166.16.132'
-        )[0];
+        const result = addresses.filter(({ address }) => address !== '188.166.16.132')[0];
         callback(err, result?.address, result?.family);
       }
     ),
 });
 
-const getOneCallUrl = ({
-  lat,
-  lon,
-  apiKey: appId,
-  current,
-  hourly,
-  daily,
-  units,
-}: OneCallConfig) =>
+const getOneCallUrl = ({ lat, lon, apiKey: appId, current, hourly, daily, units }: OneCallConfig) =>
   createUrl(
     'https://api.openweathermap.org/data/2.5/onecall',
     {

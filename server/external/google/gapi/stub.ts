@@ -6,8 +6,7 @@ export const events: calendar_v3.Schema$Event[] = [
     etag: '"3177032248068000"',
     id: '5s6hnsid4cfv3j8dcad716q8ad',
     status: 'confirmed',
-    htmlLink:
-      'https://www.google.com/calendar/event?eid=NXM2aG5zaWQ0Y2Z2M2o4ZGNhZDcxNnE4YWQgZGpsZXdhcEBt',
+    htmlLink: 'https://www.google.com/calendar/event?eid=NXM2aG5zaWQ0Y2Z2M2o4ZGNhZDcxNnE4YWQgZGpsZXdhcEBt',
     created: '2020-05-03T14:28:44.000Z',
     updated: '2020-05-03T14:28:44.034Z',
     summary: '1-1',
@@ -24,8 +23,7 @@ export const events: calendar_v3.Schema$Event[] = [
     etag: '"3177016131374000"',
     id: '2timgholks5s5c4jhkggneujt9',
     status: 'confirmed',
-    htmlLink:
-      'https://www.google.com/calendar/event?eid=MnRpbWdob2xrczVzNWM0amhrZ2duZXVqdDkgZGpsZXdhcEBt',
+    htmlLink: 'https://www.google.com/calendar/event?eid=MnRpbWdob2xrczVzNWM0amhrZ2duZXVqdDkgZGpsZXdhcEBt',
     created: '2020-05-03T12:14:25.000Z',
     updated: '2020-05-03T12:14:25.687Z',
     summary: 'Тестовое событие',
@@ -42,8 +40,7 @@ export const events: calendar_v3.Schema$Event[] = [
     etag: '"3177032407634000"',
     id: '07u5hpa579frdi634qlk362buc',
     status: 'confirmed',
-    htmlLink:
-      'https://www.google.com/calendar/event?eid=MDd1NWhwYTU3OWZyZGk2MzRxbGszNjJidWMgZGpsZXdhcEBt',
+    htmlLink: 'https://www.google.com/calendar/event?eid=MDd1NWhwYTU3OWZyZGk2MzRxbGszNjJidWMgZGpsZXdhcEBt',
     created: '2020-05-03T14:30:03.000Z',
     updated: '2020-05-03T14:30:03.817Z',
     summary: 'Watch ballet',
@@ -60,8 +57,7 @@ export const events: calendar_v3.Schema$Event[] = [
     etag: '"3177032347380000"',
     id: '3erfa9pfmdta40f3c4hmvcalc2',
     status: 'confirmed',
-    htmlLink:
-      'https://www.google.com/calendar/event?eid=M2VyZmE5cGZtZHRhNDBmM2M0aG12Y2FsYzIgZGpsZXdhcEBt',
+    htmlLink: 'https://www.google.com/calendar/event?eid=M2VyZmE5cGZtZHRhNDBmM2M0aG12Y2FsYzIgZGpsZXdhcEBt',
     created: '2020-05-03T14:29:33.000Z',
     updated: '2020-05-03T14:29:33.690Z',
     summary: 'Fuck the goose',
@@ -76,8 +72,7 @@ export const events: calendar_v3.Schema$Event[] = [
   {
     kind: 'calendar#event',
     etag: '"2992693277297000"',
-    id:
-      '_6srj8h1g6gq38ba56oo4cb9k8osjgb9p69348b9p6oqk4e1k64rjeea28c_20200504T064500Z',
+    id: '_6srj8h1g6gq38ba56oo4cb9k8osjgb9p69348b9p6oqk4e1k64rjeea28c_20200504T064500Z',
     status: 'confirmed',
     htmlLink:
       'https://www.google.com/calendar/event?eid=XzZzcmo4aDFnNmdxMzhiYTU2b280Y2I5azhvc2pnYjlwNjkzNDhiOXA2b3FrNGUxazY0cmplZWEyOGNfMjAyMDA1MDRUMDY0NTAwWiBkamxld2FwQG0',
@@ -96,8 +91,7 @@ export const events: calendar_v3.Schema$Event[] = [
     },
     start: { dateTime: '2020-05-04T09:45:00+03:00', timeZone: 'Europe/Moscow' },
     end: { dateTime: '2020-05-04T10:15:00+03:00', timeZone: 'Europe/Moscow' },
-    recurringEventId:
-      '_6srj8h1g6gq38ba56oo4cb9k8osjgb9p69348b9p6oqk4e1k64rjeea28c',
+    recurringEventId: '_6srj8h1g6gq38ba56oo4cb9k8osjgb9p69348b9p6oqk4e1k64rjeea28c',
     originalStartTime: {
       dateTime: '2020-05-04T09:45:00+03:00',
       timeZone: 'Europe/Moscow',
@@ -111,8 +105,7 @@ export const events: calendar_v3.Schema$Event[] = [
     etag: '"3177039127508000"',
     id: '4gng09a35ik4rvicar5p7jftvn',
     status: 'confirmed',
-    htmlLink:
-      'https://www.google.com/calendar/event?eid=NGduZzA5YTM1aWs0cnZpY2FyNXA3amZ0dm4gZGpsZXdhcEBt',
+    htmlLink: 'https://www.google.com/calendar/event?eid=NGduZzA5YTM1aWs0cnZpY2FyNXA3amZ0dm4gZGpsZXdhcEBt',
     created: '2020-05-03T15:26:03.000Z',
     updated: '2020-05-03T15:26:03.754Z',
     summary: 'Что-то на русском',
@@ -129,8 +122,7 @@ export const events: calendar_v3.Schema$Event[] = [
     etag: '"3177039143552000"',
     id: '72q3d6vmjm7sk9e543rsiqq9d2',
     status: 'confirmed',
-    htmlLink:
-      'https://www.google.com/calendar/event?eid=NzJxM2Q2dm1qbTdzazllNTQzcnNpcXE5ZDIgZGpsZXdhcEBt',
+    htmlLink: 'https://www.google.com/calendar/event?eid=NzJxM2Q2dm1qbTdzazllNTQzcnNpcXE5ZDIgZGpsZXdhcEBt',
     created: '2020-05-03T15:26:11.000Z',
     updated: '2020-05-03T15:26:11.776Z',
     summary: 'English title',
@@ -147,8 +139,7 @@ export const events: calendar_v3.Schema$Event[] = [
     etag: '"3177039158680000"',
     id: '0n8i1do2ojbnbd7i7ss51sh611',
     status: 'confirmed',
-    htmlLink:
-      'https://www.google.com/calendar/event?eid=MG44aTFkbzJvamJuYmQ3aTdzczUxc2g2MTEgZGpsZXdhcEBt',
+    htmlLink: 'https://www.google.com/calendar/event?eid=MG44aTFkbzJvamJuYmQ3aTdzczUxc2g2MTEgZGpsZXdhcEBt',
     created: '2020-05-03T15:26:19.000Z',
     updated: '2020-05-03T15:26:19.340Z',
     summary: 'Bombom',
@@ -165,8 +156,7 @@ export const events: calendar_v3.Schema$Event[] = [
     etag: '"3177039175570000"',
     id: '1a48pfoojk33b20ijlvv1477us',
     status: 'confirmed',
-    htmlLink:
-      'https://www.google.com/calendar/event?eid=MWE0OHBmb29qazMzYjIwaWpsdnYxNDc3dXMgZGpsZXdhcEBt',
+    htmlLink: 'https://www.google.com/calendar/event?eid=MWE0OHBmb29qazMzYjIwaWpsdnYxNDc3dXMgZGpsZXdhcEBt',
     created: '2020-05-03T15:26:27.000Z',
     updated: '2020-05-03T15:26:27.785Z',
     summary: 'Pornhub',
@@ -183,8 +173,7 @@ export const events: calendar_v3.Schema$Event[] = [
     etag: '"3177039191172000"',
     id: '3s6oo55uaj0bruotd2h9gngq29',
     status: 'confirmed',
-    htmlLink:
-      'https://www.google.com/calendar/event?eid=M3M2b281NXVhajBicnVvdGQyaDlnbmdxMjkgZGpsZXdhcEBt',
+    htmlLink: 'https://www.google.com/calendar/event?eid=M3M2b281NXVhajBicnVvdGQyaDlnbmdxMjkgZGpsZXdhcEBt',
     created: '2020-05-03T15:26:35.000Z',
     updated: '2020-05-03T15:26:35.586Z',
     summary: 'Some activities',

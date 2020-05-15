@@ -1,13 +1,6 @@
 import React from 'react';
 import { lightFormat, parseISO, startOfDay } from 'date-fns';
-import {
-  headerStyle,
-  itemStyle,
-  itemTitleStyle,
-  itemsStyle,
-  containerStyle,
-  summaryStyle,
-} from './style';
+import { headerStyle, itemStyle, itemTitleStyle, itemsStyle, containerStyle, summaryStyle } from './style';
 import { calendar_v3 } from 'googleapis';
 import { style } from 'typestyle';
 
@@ -22,8 +15,7 @@ const groupAndSortByDay = (events: calendar_v3.Schema$Event[]) => {
     }))
     .filter((event) => !!event.start) as OnlyWithStart[];
 
-  const getKey = (event: OnlyWithStart) =>
-    startOfDay(parseISO(event.start.dateTime || '')).toISOString();
+  const getKey = (event: OnlyWithStart) => startOfDay(parseISO(event.start.dateTime || '')).toISOString();
 
   return onlyWithStart.reduce((acc, event) => {
     const eventKey = getKey(event);
@@ -36,8 +28,7 @@ const groupAndSortByDay = (events: calendar_v3.Schema$Event[]) => {
   }, {} as Record<string, OnlyWithStart[]>);
 };
 
-const trimTitle = (text: string) =>
-  text.length > 32 ? text.slice(0, 32).concat('…') : text;
+const trimTitle = (text: string) => (text.length > 32 ? text.slice(0, 32).concat('…') : text);
 
 export type Props = { events: calendar_v3.Schema$Event[] };
 
@@ -92,11 +83,7 @@ export const Template = ({ events }: Props) => (
                 >
                   {trimTitle(event.summary || 'No name')}
                 </div>
-                {event.start.dateTime && (
-                  <div>
-                    {lightFormat(parseISO(event.start.dateTime), 'HH:mm')}
-                  </div>
-                )}
+                {event.start.dateTime && <div>{lightFormat(parseISO(event.start.dateTime), 'HH:mm')}</div>}
               </div>
             ))}
           </div>

@@ -8,11 +8,7 @@ type Props = {
   onOptionsChange: (widgetsOptions: string) => unknown;
 };
 
-const WidgetsOptionsEditor = ({
-  value,
-  onOptionsChange,
-  parsingError,
-}: Props) => {
+const WidgetsOptionsEditor = ({ value, onOptionsChange, parsingError }: Props) => {
   const handleChange = useCallback(
     (e) => {
       const value: string = e.target.value;

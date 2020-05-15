@@ -3,16 +3,13 @@ import { TemplateProps } from './data';
 import { style } from 'typestyle';
 import { format, fromUnixTime } from 'date-fns';
 
-const getWeatherIcon = (id: string) =>
-  `http://openweathermap.org/img/wn/${id}@2x.png`;
+const getWeatherIcon = (id: string) => `http://openweathermap.org/img/wn/${id}@2x.png`;
 
-const upperCaseFirstLetter = (str: string) =>
-  str.length ? str[0].toUpperCase() + str.slice(1) : str;
+const upperCaseFirstLetter = (str: string) => (str.length ? str[0].toUpperCase() + str.slice(1) : str);
 
 const formatTemp = (temp: number) => Math.round(temp) + '°';
 
-const formatUnixTime = (ts: number, formatStr: string) =>
-  format(fromUnixTime(ts), formatStr);
+const formatUnixTime = (ts: number, formatStr: string) => format(fromUnixTime(ts), formatStr);
 
 const containerStyle = style({
   height: '100%',
@@ -93,13 +90,8 @@ export const Template = ({ weather: { current, daily } }: TemplateProps) => (
     <div className={currentContainerStyle}>
       {current.weather.length && (
         <div className={currentImgConatinerStyle}>
-          <img
-            className={currentImgStyle}
-            src={getWeatherIcon(current.weather[0].icon)}
-          />
-          <div className={currentImgDescriptionStyle}>
-            {upperCaseFirstLetter(current.weather[0].description)}
-          </div>
+          <img className={currentImgStyle} src={getWeatherIcon(current.weather[0].icon)} />
+          <div className={currentImgDescriptionStyle}>{upperCaseFirstLetter(current.weather[0].description)}</div>
         </div>
       )}
       <div className={currentDataStyle}>
@@ -119,22 +111,12 @@ export const Template = ({ weather: { current, daily } }: TemplateProps) => (
     </div>
     <div className={dailyContainerStyle}>
       {daily.slice(0, 3).map((day, index) => (
-        <div
-          key={day.dt}
-          className={dailyDayStyle}
-          style={{ marginLeft: index !== 0 ? '.5rem' : '0' }}
-        >
-          <div className={dailyDayTitleStyle}>
-            {formatUnixTime(day.dt, 'EEE')}
-          </div>
+        <div key={day.dt} className={dailyDayStyle} style={{ marginLeft: index !== 0 ? '.5rem' : '0' }}>
+          <div className={dailyDayTitleStyle}>{formatUnixTime(day.dt, 'EEE')}</div>
           <div className={dailyDayTempStyle}>
             {formatTemp(day.temp.min)}–{formatTemp(day.temp.max)}
           </div>
-          {day.weather.length && (
-            <div className={dailyDayWeatherStyle}>
-              {day.weather[0].description}
-            </div>
-          )}
+          {day.weather.length && <div className={dailyDayWeatherStyle}>{day.weather[0].description}</div>}
         </div>
       ))}
     </div>

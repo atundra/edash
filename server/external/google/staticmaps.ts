@@ -2,10 +2,7 @@ import { createUrl } from '../../utils';
 import { GMAPS_STATIC_API, GMAPS_API_KEY } from '../../config';
 import { LatLon } from '../geocoder/types';
 
-const buildGmapsParams = (
-  params: Record<string, string | null>,
-  value?: string
-) =>
+const buildGmapsParams = (params: Record<string, string | null>, value?: string) =>
   Object.entries(params)
     .filter((entry) => entry.every((item) => item !== null))
     .map((entry) => entry.join(':'))
@@ -54,10 +51,7 @@ type Marker = {
   pos: LatLon | string;
 };
 
-export const getMapUrl = (
-  markers: Marker[],
-  size: { width: number; height: number }
-) =>
+export const getMapUrl = (markers: Marker[], size: { width: number; height: number }) =>
   createUrl(GMAPS_STATIC_API, {
     ...getDefaultConfig(),
     size: `${size.width}x${size.height}`,
@@ -71,8 +65,7 @@ export const getMapUrl = (
     ),
   });
 
-const getClusterLabel = (count: number) =>
-  count > 9 ? 'L' : count > 1 ? String(count) : null;
+const getClusterLabel = (count: number) => (count > 9 ? 'L' : count > 1 ? String(count) : null);
 
 export const getMapUrlForClusters = (
   clusters: { pos: LatLon; count: number }[],

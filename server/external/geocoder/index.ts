@@ -1,11 +1,6 @@
 import { GeocoderResponse, LatLon } from './types';
 import { YANDEX_API_KEY, GEOCODE_BASE_URL } from '../../config';
-import {
-  createUrl,
-  createTuple2,
-  getDataLoader,
-  mapPromiseAll,
-} from '../../utils';
+import { createUrl, createTuple2, getDataLoader, mapPromiseAll } from '../../utils';
 
 const createGeocodeUrl = (address: string) =>
   createUrl(GEOCODE_BASE_URL, {
@@ -29,9 +24,6 @@ const processPos = (gmlPoint: string | null) =>
  * @param address
  */
 export const geocode = (address: string): Promise<LatLon | null> =>
-  Promise.resolve(createGeocodeUrl(address))
-    .then(axiosGet)
-    .then(getPosFromResponse)
-    .then(processPos);
+  Promise.resolve(createGeocodeUrl(address)).then(axiosGet).then(getPosFromResponse).then(processPos);
 
 export const geocodeList = mapPromiseAll(geocode);

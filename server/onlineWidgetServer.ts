@@ -4,11 +4,7 @@ import fsStore from 'cache-manager-fs-hash';
 
 import Renderer from './renderer';
 import { WidgetConfig } from './renderer/types';
-import {
-  LAYOUT_COLUMNS_COUNT,
-  LAYOUT_ROWS_COUNT,
-  CACHE_GENERATION,
-} from './config';
+import { LAYOUT_COLUMNS_COUNT, LAYOUT_ROWS_COUNT, CACHE_GENERATION } from './config';
 
 const PORT = 8080;
 

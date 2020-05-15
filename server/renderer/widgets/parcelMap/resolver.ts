@@ -7,10 +7,7 @@ import { getWidgetDimensions } from '../utils';
 export default async (options: DefaultResolverOptions & Options) => {
   const { layout, widget } = options;
 
-  const googleMapsUrl = await generate(
-    options.tracks,
-    getWidgetDimensions(layout, widget.position)
-  );
+  const googleMapsUrl = await generate(options.tracks, getWidgetDimensions(layout, widget.position));
 
   return { googleMapsUrl };
 };

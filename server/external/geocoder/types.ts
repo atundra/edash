@@ -9,13 +9,7 @@ type AddressComponent = {
   name: string;
 };
 
-type GeocoderPrecision =
-  | 'exact'
-  | 'number'
-  | 'near'
-  | 'range'
-  | 'street'
-  | 'other';
+type GeocoderPrecision = 'exact' | 'number' | 'near' | 'range' | 'street' | 'other';
 
 type GeocoderMetaDataKind =
   | 'house' // отдельный дом

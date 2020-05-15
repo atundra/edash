@@ -9,10 +9,7 @@ type Props = {
 };
 
 const DashboardItem = ({ id, name, onDeleteClick }: Props) => {
-  const handleDeleteClick = useCallback(
-    () => onDeleteClick && onDeleteClick(id),
-    [onDeleteClick, id]
-  );
+  const handleDeleteClick = useCallback(() => onDeleteClick && onDeleteClick(id), [onDeleteClick, id]);
 
   return (
     <div className={styles.root}>

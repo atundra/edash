@@ -14,7 +14,6 @@ const axiosGet = getDataLoader<TrackResponse>();
 const getLastPosFromResponse = (res: TrackResponse) =>
   (res.status === 'ok' && res.data.lastPoint.operationPlaceName) || null;
 
-const trackLastPos = (track: string) =>
-  Promise.resolve(getApiUrl(track)).then(axiosGet).then(getLastPosFromResponse);
+const trackLastPos = (track: string) => Promise.resolve(getApiUrl(track)).then(axiosGet).then(getLastPosFromResponse);
 
 export const trackLastPosList = mapPromiseAll(trackLastPos);
