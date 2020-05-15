@@ -10,10 +10,7 @@ import styles from './index.module.css';
 type Props = {
   layout: Layout[];
   widgets: Record<string, string>;
-  onLayoutChange: (
-    layout: Layout[],
-    widgets: Record<string, string>
-  ) => unknown;
+  onLayoutChange: (layout: Layout[], widgets: Record<string, string>) => unknown;
 };
 
 const width = 800;
@@ -90,11 +87,7 @@ const DashboardGrid = ({ onLayoutChange, layout, widgets }: Props) => {
     >
       {layout.map((item) => (
         <div key={item.i}>
-          <DashboardItem
-            id={item.i}
-            name={widgets[item.i]}
-            onDeleteClick={handleDeleteClick}
-          />
+          <DashboardItem id={item.i} name={widgets[item.i]} onDeleteClick={handleDeleteClick} />
         </div>
       ))}
     </GridLayout>

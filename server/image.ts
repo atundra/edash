@@ -31,10 +31,7 @@ const toggleEndianness = function (buf: Buffer): Buffer {
   return buf;
 };
 
-export const convertBuffer = (
-  sourceBuffer: Buffer,
-  convertArgs: string[] = []
-): Promise<Buffer> =>
+export const convertBuffer = (sourceBuffer: Buffer, convertArgs: string[] = []): Promise<Buffer> =>
   new Promise((resolve, reject) => {
     const buffers: Buffer[] = [];
 
@@ -67,5 +64,4 @@ export const convertToBMP = (input: string, output: string) =>
   convertTo(['-alpha', 'off', '-compress', 'none', input, `BMP3:${output}`]);
 
 // Just run convert command with input and output
-export const convertSimple = (input: string, output: string) =>
-  convertTo([input, output]);
+export const convertSimple = (input: string, output: string) => convertTo([input, output]);

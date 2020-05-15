@@ -6,9 +6,7 @@ type Value = string | number | boolean | undefined | null;
 const URL_REGEXP = /^(.+?)(\?.+?)?(#.+)?$/;
 
 function encodeQueryValue(value?: Value): string {
-  return value !== null && value !== undefined
-    ? encodeURIComponent(String(value))
-    : '';
+  return value !== null && value !== undefined ? encodeURIComponent(String(value)) : '';
 }
 
 function passQueryValue(value?: Value): string {
@@ -26,9 +24,7 @@ export function serializeQueryData(
   return Object.keys(params)
     .map((key: string) =>
       Array.isArray(params[key])
-        ? (params[key] as Value[])
-            .map((value) => `${key}=${encodeFunction(value)}`)
-            .join('&')
+        ? (params[key] as Value[]).map((value) => `${key}=${encodeFunction(value)}`).join('&')
         : `${key}=${encodeFunction(params[key] as Value)}`
     )
     .join('&');
@@ -75,11 +71,7 @@ export function getQueryData(url: string): QueryData {
   return {};
 }
 
-export function createUrl(
-  baseUrl: string,
-  params = {},
-  disableEncoding = false
-): string {
+export function createUrl(baseUrl: string, params = {}, disableEncoding = false): string {
   const match = baseUrl.match(URL_REGEXP);
 
   const encoder = disableEncoding ? passQueryValue : undefined;
@@ -102,24 +94,17 @@ export function createUrl(
 
 export const createTuple2 = <T>(list: Array<T>): [T, T] => [list[0], list[1]];
 
-export const mapPromiseAll = <T, R>(mapper: (arg: T) => Promise<R>) => (
-  items: T[]
-) => Promise.all(items.map(mapper));
+export const mapPromiseAll = <T, R>(mapper: (arg: T) => Promise<R>) => (items: T[]) => Promise.all(items.map(mapper));
 
-type GetType<T = any> = (
-  url: string,
-  config?: AxiosRequestConfig
-) => Promise<T>;
+type GetType<T = any> = (url: string, config?: AxiosRequestConfig) => Promise<T>;
 
 const getAxiosResponseData = (res: AxiosResponse) => res.data;
 
-export const getDataLoader = <RT>(): GetType<RT> => (url, config) =>
-  axios.get(url, config).then(getAxiosResponseData);
+export const getDataLoader = <RT>(): GetType<RT> => (url, config) => axios.get(url, config).then(getAxiosResponseData);
 
 const isNotNull = <T>(item: T | null): item is T => item !== null;
 
-export const filterOutNulls = <T>(items: Array<T | null>): T[] =>
-  items.filter(isNotNull);
+export const filterOutNulls = <T>(items: Array<T | null>): T[] => items.filter(isNotNull);
 
 const sum = (a: number, b: number) => a + b;
 
@@ -128,10 +113,7 @@ const sumList = (list: number[]) => list.reduce(sum, 0);
 /**
  * Get Point with min sum of distances to other points
  */
-const getMeanPoint = <Point>(
-  points: Point[],
-  getDistance: (p1: Point, p2: Point) => number
-): Point => {
+const getMeanPoint = <Point>(points: Point[], getDistance: (p1: Point, p2: Point) => number): Point => {
   return points
     .map((point) => ({
       point,
@@ -141,8 +123,7 @@ const getMeanPoint = <Point>(
       point,
       sum: sumList(distances),
     }))
-    .reduce((minPoint, point) => (minPoint.sum < point.sum ? minPoint : point))
-    .point;
+    .reduce((minPoint, point) => (minPoint.sum < point.sum ? minPoint : point)).point;
 };
 
 const toRadian = (degrees: number): number => (degrees * Math.PI) / 180;
@@ -155,9 +136,7 @@ export const haversineDistance = (p1: LatLon, p2: LatLon): number => {
 
   const dlon = lon2 - lon1;
   const dlat = lat2 - lat1;
-  const a =
-    Math.pow(Math.sin(dlat / 2), 2) +
-    Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(dlon / 2), 2);
+  const a = Math.pow(Math.sin(dlat / 2), 2) + Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(dlon / 2), 2);
 
   const c = 2 * Math.asin(Math.sqrt(a));
 
@@ -165,20 +144,14 @@ export const haversineDistance = (p1: LatLon, p2: LatLon): number => {
 };
 
 // Group lat-lon points using proximity in meters
-export const groupLatLonByDistance = (distance: number) => (
-  points: LatLon[]
-): { pos: LatLon; count: number }[] => {
+export const groupLatLonByDistance = (distance: number) => (points: LatLon[]): { pos: LatLon; count: number }[] => {
   const groups: LatLon[][] = [];
   points.forEach((point) => {
     let placed = false;
 
     for (let i = 0; i < groups.length; i++) {
       const group = groups[i];
-      if (
-        group.every(
-          (groupPoint) => haversineDistance(point, groupPoint) < distance
-        )
-      ) {
+      if (group.every((groupPoint) => haversineDistance(point, groupPoint) < distance)) {
         group.push(point);
         placed = true;
         break;

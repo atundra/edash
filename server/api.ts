@@ -1,20 +1,10 @@
 import { Router, RequestHandler, Request } from 'express';
 import { generate as generateMapUrl } from './mapUrl';
 import path from 'path';
-import {
-  convertToBMP as convertImageToBMP,
-  convertSimple as convertImageSimple,
-  convertBuffer,
-} from './image';
+import { convertToBMP as convertImageToBMP, convertSimple as convertImageSimple, convertBuffer } from './image';
 import { exists as isFileExists, load as loadFile } from './file';
 import { PathLike, createReadStream } from 'fs';
-import {
-  IMAGE_MAX_AGE,
-  TRACKS,
-  LAYOUT_COLUMNS_COUNT,
-  LAYOUT_ROWS_COUNT,
-  CACHE_GENERATION,
-} from './config';
+import { IMAGE_MAX_AGE, TRACKS, LAYOUT_COLUMNS_COUNT, LAYOUT_ROWS_COUNT, CACHE_GENERATION } from './config';
 import { pngStreamToBitmap } from './createBitmap';
 import Renderer from './renderer';
 import { WidgetConfig } from './renderer/types';
@@ -230,8 +220,7 @@ const layoutBinHandler: RequestHandler<{}, Buffer> = async (req, res, next) => {
   });
 
   const convertBufferTask = taskEither.tryCatchK(
-    (buffer: Buffer) =>
-      convertBuffer(buffer, ['PNG:-', '-dither', 'Floyd-Steinberg', 'MONO:-']),
+    (buffer: Buffer) => convertBuffer(buffer, ['PNG:-', '-dither', 'Floyd-Steinberg', 'MONO:-']),
     either.toError
   );
 

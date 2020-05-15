@@ -19,10 +19,7 @@ type WidgetOptions = {
   position: WidgetPosition;
 };
 
-const layoutTowidgetOptions = (
-  layout: Layout[],
-  widgets: Record<string, string>
-): WidgetOptions[] =>
+const layoutTowidgetOptions = (layout: Layout[], widgets: Record<string, string>): WidgetOptions[] =>
   layout.map((item) => ({
     id: widgets[item.i],
     position: {
@@ -61,15 +58,10 @@ const App = () => {
   const [parsingError, setParsingError] = useState(false);
   const [widgetsOptions, setWidgetsOptions] = useState('[]');
 
-  const handleLayoutChange = useCallback(
-    (layout: Layout[], widgets: Record<string, string>) => {
-      setState({ layout, widgets });
-      setWidgetsOptions(
-        JSON.stringify(layoutTowidgetOptions(layout, widgets), null, 2)
-      );
-    },
-    []
-  );
+  const handleLayoutChange = useCallback((layout: Layout[], widgets: Record<string, string>) => {
+    setState({ layout, widgets });
+    setWidgetsOptions(JSON.stringify(layoutTowidgetOptions(layout, widgets), null, 2));
+  }, []);
 
   const handleWidgetsOptionsChange = useCallback(
     (widgetsOptions: string) => {
@@ -99,11 +91,7 @@ const App = () => {
       </div>
       <div className={styles.dashboardWrapper}>
         <div className={styles.dashboard}>
-          <DashboardGrid
-            layout={state.layout}
-            widgets={state.widgets}
-            onLayoutChange={handleLayoutChange}
-          />
+          <DashboardGrid layout={state.layout} widgets={state.widgets} onLayoutChange={handleLayoutChange} />
         </div>
         <div className={styles.widgetsOptionsEditor}>
           <WidgetsOptionsEditor
