@@ -6,7 +6,13 @@ import hashIt from 'hash-it';
 import WIDGETS_REGISTRY from './widgets/registry';
 import Layout from './layout';
 import Widget from './widget';
-import {WidgetConfig, WidgetPosition, WidgetPropsById, WidgetOptionsById, WidgetId} from './types';
+import {
+  WidgetConfig,
+  WidgetPosition,
+  WidgetPropsById,
+  WidgetOptionsById,
+  WidgetId,
+} from './types';
 
 export type LayoutProperties = {
   width: number;
