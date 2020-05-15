@@ -1,4 +1,5 @@
-import { WidgetPosition, LayoutProperties } from '..';
+import { LayoutProperties } from '..';
+import { WidgetPosition } from '../types';
 
 export const getWidgetDimensions = (
   layout: LayoutProperties,

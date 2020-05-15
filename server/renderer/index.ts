@@ -6,20 +6,7 @@ import hashIt from 'hash-it';
 import WIDGETS_REGISTRY from './widgets/registry';
 import Layout from './layout';
 import Widget from './widget';
-
-export type WidgetPosition = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-};
-
-export type WidgetOptions = {
-  id: string;
-  position: WidgetPosition;
-  // TODO: Improve typings
-  options?: any;
-};
+import {WidgetConfig, WidgetPosition, WidgetPropsById, WidgetOptionsById, WidgetId} from './types';
 
 export type LayoutProperties = {
   width: number;
@@ -29,7 +16,7 @@ export type LayoutProperties = {
 };
 
 type RenderOptions = {
-  widgets: WidgetOptions[];
+  widgets: WidgetConfig[];
   layout: LayoutProperties;
 };
 
@@ -64,12 +51,12 @@ const ensureWidgetExists = <T extends string>(
 
 const createDefaultResolverOptions = (
   renderOptions: RenderOptions,
-  widgetOptions: WidgetOptions
+  widgetConfig: WidgetConfig
 ): DefaultResolverOptions => ({
   layout: renderOptions.layout,
   widget: {
-    id: widgetOptions.id,
-    position: widgetOptions.position,
+    id: widgetConfig.id,
+    position: widgetConfig.position,
   },
 });
 
@@ -102,19 +89,17 @@ export default class Renderer {
         const widget = WIDGETS_REGISTRY[widgetConfig.id];
 
         try {
-          // TODO: Improve typings
           const resolverOptions = {
             ...createDefaultResolverOptions(options, widgetConfig),
-            ...widgetConfig.options,
-          };
+            ...(widgetConfig.options ? widgetConfig.options : {}),
+          } as DefaultResolverOptions & WidgetOptionsById<WidgetId>;
 
           const widgetData = await this.resolveWidgetData(
             widget,
             resolverOptions
           );
 
-          // TODO: Improve typings
-          return widget.render(widgetData as any);
+          return widget.render(widgetData);
         } catch (error) {
           console.error(
             `Error while rendering widget ${widgetConfig.id}\n`,

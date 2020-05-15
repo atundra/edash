@@ -16,7 +16,8 @@ import {
   CACHE_GENERATION,
 } from './config';
 import { pngStreamToBitmap } from './createBitmap';
-import Renderer, { WidgetOptions } from './renderer';
+import Renderer from './renderer';
+import { WidgetConfig } from './renderer/types';
 import { getContentScreenshot } from './puppeteer';
 import cacheManager from 'cache-manager';
 import fsStore from 'cache-manager-fs-hash';
@@ -126,7 +127,7 @@ const randomBinHandler: RequestHandler = async (req, res, next) => {
 const DEFAULT_WIDTH = 800;
 const DEFAULT_HEIGHT = 480;
 
-const EXAMPLE_CONFIG: WidgetOptions[] = [
+const EXAMPLE_CONFIG: WidgetConfig[] = [
   {
     id: 'hello',
     position: {
