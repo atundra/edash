@@ -1,5 +1,5 @@
 import Widget from '../../widget';
-import { loadCalendarEvents } from './gapi';
+import { loadCalendarEvents } from '../../../external/google/gapi';
 import { Template, Props as TemplateProps } from './template';
 import { Fallback } from './fallback';
 
