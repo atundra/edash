@@ -1,5 +1,5 @@
-import { createUrl, mapPromiseAll, getDataLoader } from '../utils';
-import { TRACK24_API, TRACK24_API_KEY } from '../config';
+import { createUrl, mapPromiseAll, getDataLoader } from '../../utils';
+import { TRACK24_API, TRACK24_API_KEY } from '../../config';
 import { TrackResponse } from './types';
 
 const getApiUrl = (track: string) =>
