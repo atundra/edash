@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "axios": "^0.19.2",
+    "body-parser": "^1.19.0",
     "cache-manager": "^3.3.0",
     "cache-manager-fs-hash": "0.0.8",
     "date-fns": "^2.12.0",
@@ -38,6 +39,7 @@
     "fp-ts": "^2.5.4",
     "googleapis": "39",
     "hash-it": "^4.0.5",
+    "io-ts": "^2.2.2",
     "pngjs": "^5.0.0",
     "puppeteer": "^3.0.2",
     "react": "^16.13.1",

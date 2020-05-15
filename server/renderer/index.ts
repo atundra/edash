@@ -2,11 +2,12 @@ import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { getStyles } from 'typestyle';
 import hashIt from 'hash-it';
+import * as t from 'io-ts';
 
 import WIDGETS_REGISTRY from './widgets/registry';
 import Layout from './layout';
 import Widget from './widget';
-import { WidgetConfig, WidgetPosition, WidgetPropsById, WidgetOptionsById, WidgetId } from './types';
+import { WidgetConfig, WidgetPosition, WidgetOptionsById, WidgetId } from './types';
 
 export type LayoutProperties = {
   width: number;
@@ -99,7 +100,10 @@ export default class Renderer {
     );
   }
 
-  async resolveWidgetData<O>(widget: Widget<O, any>, resolverOptions: DefaultResolverOptions & O) {
+  async resolveWidgetData<O, S extends t.Any>(
+    widget: Widget<any, any, S>,
+    resolverOptions: DefaultResolverOptions & O
+  ) {
     const cacheConfiguration = widget.getCacheConfiguration();
 
     if (!cacheConfiguration) {
