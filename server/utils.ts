@@ -1,5 +1,5 @@
 import axios, { AxiosResponse, AxiosRequestConfig } from 'axios';
-import { LatLon } from './geocoder/types';
+import { LatLon } from './external/geocoder/types';
 
 type Value = string | number | boolean | undefined | null;
 

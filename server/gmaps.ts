@@ -1,6 +1,6 @@
 import { createUrl } from './utils';
 import { GMAPS_STATIC_API, GMAPS_API_KEY } from './config';
-import { LatLon } from './geocoder/types';
+import { LatLon } from './external/geocoder/types';
 
 const buildGmapsParams = (
   params: Record<string, string | null>,

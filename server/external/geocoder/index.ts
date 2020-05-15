@@ -1,11 +1,11 @@
 import { GeocoderResponse, LatLon } from './types';
-import { YANDEX_API_KEY, GEOCODE_BASE_URL } from '../config';
+import { YANDEX_API_KEY, GEOCODE_BASE_URL } from '../../config';
 import {
   createUrl,
   createTuple2,
   getDataLoader,
   mapPromiseAll,
-} from '../utils';
+} from '../../utils';
 
 const createGeocodeUrl = (address: string) =>
   createUrl(GEOCODE_BASE_URL, {

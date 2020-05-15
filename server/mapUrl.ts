@@ -1,4 +1,4 @@
-import { geocodeList } from './geocoder';
+import { geocodeList } from './external/geocoder';
 import { getMapUrlForClusters } from './gmaps';
 import { trackLastPosList } from './track';
 import { filterOutNulls, groupLatLonByDistance } from './utils';
