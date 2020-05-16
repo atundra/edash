@@ -1,10 +1,11 @@
 import React, { CSSProperties } from 'react';
 import { style } from 'typestyle';
 
-import { WidgetOptions, WidgetPosition, LayoutProperties } from '.';
+import { LayoutProperties } from '.';
+import { WidgetConfig, WidgetPosition } from './types';
 
 type Props = {
-  widgetOptions: WidgetOptions[];
+  widgetOptions: WidgetConfig[];
   widgets: React.ReactNode[];
   layoutProperties: LayoutProperties;
 };

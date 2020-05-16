@@ -1,12 +1,7 @@
 import { Page } from 'puppeteer';
 
 import * as browsermanager from '../browsermanager';
-import {
-  tryCatchK,
-  map as teMap,
-  chain,
-  chainFirst,
-} from 'fp-ts/lib/TaskEither';
+import { tryCatchK, map as teMap, chain, chainFirst } from 'fp-ts/lib/TaskEither';
 import { toError, Either, left, right } from 'fp-ts/lib/Either';
 import { pipe } from 'fp-ts/lib/pipeable';
 import { map } from 'fp-ts/lib/Array';
@@ -39,25 +34,18 @@ const waitForImagesLoad = () =>
     (promises) => Promise.all(promises)
   );
 
-const defaultTryCatchK = <A extends ReadonlyArray<unknown>, B>(
-  f: (...a: A) => Promise<B>
-) => tryCatchK<Error, A, B>(f, toError);
+const defaultTryCatchK = <A extends ReadonlyArray<unknown>, B>(f: (...a: A) => Promise<B>) =>
+  tryCatchK<Error, A, B>(f, toError);
 
-const chainFirstDefaultTryCatchK = <A extends unknown, B>(
-  f: (a: A) => Promise<B>
-) => chainFirst<Error, A, B>(tryCatchK(f, toError));
+const chainFirstDefaultTryCatchK = <A extends unknown, B>(f: (a: A) => Promise<B>) =>
+  chainFirst<Error, A, B>(tryCatchK(f, toError));
 
-export const getContentScreenshot = (
-  pageContent: string,
-  { width, height }: { width: number; height: number }
-) =>
+export const getContentScreenshot = (pageContent: string, { width, height }: { width: number; height: number }) =>
   pipe(
     browsermanager.runBrowser,
     chain(defaultTryCatchK((browser) => browser.newPage())),
     chainFirstDefaultTryCatchK((page) => page.setViewport({ width, height })),
-    chainFirstDefaultTryCatchK((page) =>
-      page.setContent(pageContent, { waitUntil: ['load'] })
-    ),
+    chainFirstDefaultTryCatchK((page) => page.setContent(pageContent, { waitUntil: ['load'] })),
     chainFirstDefaultTryCatchK((page) =>
       page.evaluate(waitForImagesLoad).then((imageLoadErrors) =>
         imageLoadErrors
@@ -68,9 +56,7 @@ export const getContentScreenshot = (
     ),
     chain(
       defaultTryCatchK((page) =>
-        page
-          .screenshot({ encoding: 'binary' })
-          .then((screenshot) => [page, screenshot] as const)
+        page.screenshot({ encoding: 'binary' }).then((screenshot) => [page, screenshot] as const)
       )
     ),
     chainFirstDefaultTryCatchK(([page]) => page.close()),

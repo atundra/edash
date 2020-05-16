@@ -2,24 +2,12 @@ import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { getStyles } from 'typestyle';
 import hashIt from 'hash-it';
+import * as t from 'io-ts';
 
 import WIDGETS_REGISTRY from './widgets/registry';
 import Layout from './layout';
 import Widget from './widget';
-
-export type WidgetPosition = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-};
-
-export type WidgetOptions = {
-  id: string;
-  position: WidgetPosition;
-  // TODO: Improve typings
-  options?: any;
-};
+import { WidgetConfig, WidgetPosition, WidgetOptionsById, WidgetId } from './types';
 
 export type LayoutProperties = {
   width: number;
@@ -29,7 +17,7 @@ export type LayoutProperties = {
 };
 
 type RenderOptions = {
-  widgets: WidgetOptions[];
+  widgets: WidgetConfig[];
   layout: LayoutProperties;
 };
 
@@ -64,12 +52,12 @@ const ensureWidgetExists = <T extends string>(
 
 const createDefaultResolverOptions = (
   renderOptions: RenderOptions,
-  widgetOptions: WidgetOptions
+  widgetConfig: WidgetConfig
 ): DefaultResolverOptions => ({
   layout: renderOptions.layout,
   widget: {
-    id: widgetOptions.id,
-    position: widgetOptions.position,
+    id: widgetConfig.id,
+    position: widgetConfig.position,
   },
 });
 
@@ -77,18 +65,11 @@ type Key = string | number;
 
 interface Cache {
   get<T>(key: Key): T | Promise<T> | void;
-  set<T>(
-    key: Key,
-    value: T,
-    cacheOptions: { ttl: number }
-  ): unknown | Promise<unknown>;
+  set<T>(key: Key, value: T, cacheOptions: { ttl: number }): unknown | Promise<unknown>;
 }
 
 export default class Renderer {
-  constructor(
-    private cacheImplementation: Cache,
-    private cacheGeneration: number | string
-  ) {}
+  constructor(private cacheImplementation: Cache, private cacheGeneration: number | string) {}
 
   renderWidgets(options: RenderOptions): Promise<React.ReactNodeArray> {
     return Promise.all(
@@ -102,24 +83,16 @@ export default class Renderer {
         const widget = WIDGETS_REGISTRY[widgetConfig.id];
 
         try {
-          // TODO: Improve typings
           const resolverOptions = {
             ...createDefaultResolverOptions(options, widgetConfig),
-            ...widgetConfig.options,
-          };
+            ...(widgetConfig.options ? widgetConfig.options : {}),
+          } as DefaultResolverOptions & WidgetOptionsById<WidgetId>;
 
-          const widgetData = await this.resolveWidgetData(
-            widget,
-            resolverOptions
-          );
+          const widgetData = await this.resolveWidgetData(widget, resolverOptions);
 
-          // TODO: Improve typings
-          return widget.render(widgetData as any);
+          return widget.render(widgetData);
         } catch (error) {
-          console.error(
-            `Error while rendering widget ${widgetConfig.id}\n`,
-            error
-          );
+          console.error(`Error while rendering widget ${widgetConfig.id}\n`, error);
 
           return widget.renderFallback(error);
         }
@@ -127,8 +100,8 @@ export default class Renderer {
     );
   }
 
-  async resolveWidgetData<O>(
-    widget: Widget<O, any>,
+  async resolveWidgetData<O, S extends t.Any>(
+    widget: Widget<any, any, S>,
     resolverOptions: DefaultResolverOptions & O
   ) {
     const cacheConfiguration = widget.getCacheConfiguration();
@@ -184,9 +157,7 @@ export default class Renderer {
       `body { display: grid; justify-content: center; align-items: center; background: #ccc; }` +
       `.sizeWrapper { height: ${options.layout.height}px; width: ${options.layout.width}px; background: white; }`;
 
-    const body = `<div class="sizeWrapper">${ReactDOMServer.renderToStaticMarkup(
-      layout
-    )}</div>`;
+    const body = `<div class="sizeWrapper">${ReactDOMServer.renderToStaticMarkup(layout)}</div>`;
     const css = getStyles() + '\n' + devCss;
 
     return renderPage({ body, css });

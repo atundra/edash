@@ -36,9 +36,7 @@ type SpeedMeterPerSec = number;
 
 type SpeedMilesPerHour = number;
 
-type Speed<U extends Units> = U extends undefined | 'metric'
-  ? SpeedMeterPerSec
-  : SpeedMilesPerHour;
+type Speed<U extends Units> = U extends undefined | 'metric' ? SpeedMeterPerSec : SpeedMilesPerHour;
 
 type OneCallHourlyData<U extends Units> = {
   dt: UnixTime; // Time of the forecasted data, unix, UTC
@@ -93,10 +91,7 @@ type OneCallDaySpecific<U extends Units> = {
   };
 };
 
-type OneCallDayResponse<U extends Units> = Omit<
-  OneCallCurrentResponse<U>,
-  keyof OneCallDaySpecific<U>
-> &
+type OneCallDayResponse<U extends Units> = Omit<OneCallCurrentResponse<U>, keyof OneCallDaySpecific<U>> &
   OneCallDaySpecific<U>;
 
 type OneCallDailyResponse<U extends Units> = OneCallDayResponse<U>[];
@@ -105,15 +100,9 @@ export type OneCallResponse<Config extends OneCallConfig> = {
   lat: string;
   lon: string;
   timezone: string;
-  current: Config['current'] extends true
-    ? OneCallCurrentResponse<Config['units']>
-    : undefined;
-  hourly: Config['hourly'] extends true
-    ? OneCallHourlyResponse<Config['units']>
-    : undefined;
-  daily: Config['daily'] extends true
-    ? OneCallDailyResponse<Config['units']>
-    : undefined;
+  current: Config['current'] extends true ? OneCallCurrentResponse<Config['units']> : undefined;
+  hourly: Config['hourly'] extends true ? OneCallHourlyResponse<Config['units']> : undefined;
+  daily: Config['daily'] extends true ? OneCallDailyResponse<Config['units']> : undefined;
 };
 
 type WeatherCondition =
