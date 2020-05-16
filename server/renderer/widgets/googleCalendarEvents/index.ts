@@ -3,9 +3,7 @@ import { loadCalendarEvents } from '../../../external/google/gapi';
 import { Template, Props as TemplateProps } from './template';
 import { Fallback } from './fallback';
 
-type Options = {};
-
-export default new Widget<Options, TemplateProps>({
+export default new Widget({
   dataResolver: async () => {
     const events = await loadCalendarEvents();
     return { events };

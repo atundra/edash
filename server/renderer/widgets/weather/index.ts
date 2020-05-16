@@ -1,9 +1,9 @@
 import Widget from '../../widget';
 import { Template } from './template';
 import { Fallback } from './fallback';
-import { dataResolver, TemplateProps } from './data';
+import { dataResolver } from './data';
 
-export default new Widget<{}, TemplateProps>({
+export default new Widget({
   dataResolver,
   template: Template,
   fallback: Fallback,
