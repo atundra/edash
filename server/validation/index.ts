@@ -14,15 +14,20 @@ const WidgetConfigShape = t.array(
   ])
 );
 
-const createWidgetValidationConfig = (id: WidgetId) => {
-  const optionsSchema = widgetRegistry[id].definition.optionsSchema;
+const widgetConfigValidations =
+  Object
+    .entries(widgetRegistry)
+    .reduce((acc, [id, widget]) => {
+      const optionsSchema = widget.definition.optionsSchema;
 
-  return t.type({
-    id: t.literal(id),
-    position: WidgetPosition,
-    ...(optionsSchema ? { options: optionsSchema } : {}),
-  });
-};
+      acc[id] = t.type({
+        id: t.literal(id),
+        position: WidgetPosition,
+        ...(optionsSchema ? { options: optionsSchema } : {}),
+      });
+
+      return acc;
+    }, {} as Record<string, t.Any>);
 
 export const validateWidgetConfig = (response: unknown): Either<t.Errors, WidgetConfig> => {
   const shapeValidationResult = WidgetConfigShape.decode(response);
@@ -34,7 +39,7 @@ export const validateWidgetConfig = (response: unknown): Either<t.Errors, Widget
   const validationErrors: t.Errors = [];
 
   shapeValidationResult.right.forEach((config) => {
-    const validationResult = createWidgetValidationConfig(config.id).decode(config);
+    const validationResult = widgetConfigValidations[config.id].decode(config);
     if (isLeft(validationResult)) {
       validationErrors.push(...validationResult.left);
     }
