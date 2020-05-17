@@ -28,22 +28,30 @@ try {
 const getConfiguration = (id: string) => readFileP(`${CONFIGURATION_PATH}/${id}.json`);
 const updateConfiguration = (id: string, data: string) => writeFileP(`${CONFIGURATION_PATH}/${id}.json`, data);
 
-const getHandler: RequestHandler = async (req, res) => {
-  const { id } = req.params;
+const getRequiredParam = <Name extends string>(
+  name: Name
+): RE.ReaderEither<RequestContext, HandlerError, RequestContext['req']['params'][Name]> => (context) =>
+  E.fromNullable(new HandlerError(400, `Query param ${name} is required`))(context.req.params[name]);
 
-  if (!id) {
-    res.sendStatus(400);
-  }
+const getHandler: RequestHandler = async (req, res, next) => {
+  const getConfig = (id: string): TE.TaskEither<HandlerError, Buffer> =>
+    TE.tryCatch(
+      () => getConfiguration(id),
+      // Shitty node js typings for Promise meh
+      (reason) =>
+        (reason as NodeJS.ErrnoException).code === 'ENOENT'
+          ? new HandlerError(404, `Config with id ${id} not found`)
+          : new HandlerError(500, `Can't get config with id ${id}`)
+    );
 
-  try {
-    res.send(await getConfiguration(id));
-  } catch (e) {
-    if (e.code === 'ENOENT') {
-      return res.sendStatus(404);
-    }
+  const task = pipe(
+    RE.ask<RequestContext>(),
+    RE.chain(() => getRequiredParam('id')),
+    RTE.fromReaderEither,
+    RTE.chain((id) => RTE.fromTaskEither(getConfig(id)))
+  );
 
-    res.sendStatus(500);
-  }
+  return RTE.run(task, { req, res, next });
 };
 
 interface RequestContext {
@@ -57,11 +65,6 @@ class HandlerError {
 }
 
 const putHandler: RequestHandler = async (req, res, next) => {
-  const getRequiredParam = <Name extends string>(
-    name: Name
-  ): RE.ReaderEither<RequestContext, HandlerError, RequestContext['req']['params'][Name]> => (context) =>
-    E.fromNullable(new HandlerError(400, `Query param ${name} is required`))(context.req.params[name]);
-
   const validationErrorsToHandlerError = (errors: Errors) =>
     new HandlerError(400, `WidgetConfig validate errors:\n${PathReporter.report(E.left(errors)).join('\n')}`);
 
