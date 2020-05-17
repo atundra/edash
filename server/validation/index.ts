@@ -14,20 +14,17 @@ const WidgetConfigShape = t.array(
   ])
 );
 
-const widgetConfigValidations =
-  Object
-    .entries(widgetRegistry)
-    .reduce((acc, [id, widget]) => {
-      const optionsSchema = widget.definition.optionsSchema;
+const widgetConfigValidations = Object.entries(widgetRegistry).reduce((acc, [id, widget]) => {
+  const optionsSchema = widget.definition.optionsSchema;
 
-      acc[id] = t.type({
-        id: t.literal(id),
-        position: WidgetPosition,
-        ...(optionsSchema ? { options: optionsSchema } : {}),
-      });
+  acc[id] = t.type({
+    id: t.literal(id),
+    position: WidgetPosition,
+    ...(optionsSchema ? { options: optionsSchema } : {}),
+  });
 
-      return acc;
-    }, {} as Record<string, t.Any>);
+  return acc;
+}, {} as Record<string, t.Any>);
 
 export const validateWidgetConfig = (response: unknown): Either<t.Errors, WidgetConfig> => {
   const shapeValidationResult = WidgetConfigShape.decode(response);

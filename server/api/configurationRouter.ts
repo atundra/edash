@@ -58,11 +58,11 @@ const putHandler: RequestHandler = async (req, res, next) => {
   ): RE.ReaderEither<RequestContext, Error, RequestContext['req']['params'][Name]> => (context) =>
     E.fromNullable(new Error(`Query param ${name} is required`))(context.req.params[name]);
 
-  const validateConfig = (): RE.ReaderEither<RequestContext, Error, WidgetConfig> => (context) => {
-    return E.mapLeft(
-      (err: Errors) => new Error(`WidgetConfig validate errors:\n${PathReporter.report(E.left(err)).join('\n')}`)
-    )(validateWidgetConfig(context.req.body));
-  };
+  const validationErrorsToError = (errors: Errors) =>
+    new Error(`WidgetConfig validate errors:\n${PathReporter.report(E.left(errors)).join('\n')}`);
+
+  const validateConfig = (): RE.ReaderEither<RequestContext, Error, WidgetConfig> => (context) =>
+    pipe(validateWidgetConfig(context.req.body), E.mapLeft(validationErrorsToError));
 
   const updateConfig = (wc: WidgetConfig): RTE.ReaderTaskEither<RequestContext, Error, void> => (context) =>
     TE.tryCatch(
