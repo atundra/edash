@@ -52,26 +52,30 @@ interface RequestContext {
   next: NextFunction;
 }
 
+class HandlerError {
+  constructor(public code: number, public message: string) {}
+}
+
 const putHandler: RequestHandler = async (req, res, next) => {
   const getRequiredParam = <Name extends string>(
     name: Name
-  ): RE.ReaderEither<RequestContext, Error, RequestContext['req']['params'][Name]> => (context) =>
-    E.fromNullable(new Error(`Query param ${name} is required`))(context.req.params[name]);
+  ): RE.ReaderEither<RequestContext, HandlerError, RequestContext['req']['params'][Name]> => (context) =>
+    E.fromNullable(new HandlerError(400, `Query param ${name} is required`))(context.req.params[name]);
 
-  const validationErrorsToError = (errors: Errors) =>
-    new Error(`WidgetConfig validate errors:\n${PathReporter.report(E.left(errors)).join('\n')}`);
+  const validationErrorsToHandlerError = (errors: Errors) =>
+    new HandlerError(400, `WidgetConfig validate errors:\n${PathReporter.report(E.left(errors)).join('\n')}`);
 
-  const validateConfig = (): RE.ReaderEither<RequestContext, Error, WidgetConfig> => (context) =>
-    pipe(validateWidgetConfig(context.req.body), E.mapLeft(validationErrorsToError));
+  const validateConfig = (): RE.ReaderEither<RequestContext, HandlerError, WidgetConfig> => (context) =>
+    pipe(validateWidgetConfig(context.req.body), E.mapLeft(validationErrorsToHandlerError));
 
-  const updateConfig = (wc: WidgetConfig): RTE.ReaderTaskEither<RequestContext, Error, void> => (context) =>
+  const updateConfig = (wc: WidgetConfig): RTE.ReaderTaskEither<RequestContext, HandlerError, void> => (context) =>
     TE.tryCatch(
       () => updateConfiguration(context.req.params.id, JSON.stringify(wc)),
-      (reason) => new Error(String(reason))
+      (reason) => new HandlerError(500, String(reason))
     );
 
-  const foldLeft = (err: Error): RT.ReaderTask<RequestContext, Response<any>> => (context) =>
-    T.of(context.res.status(400).send(err.toString()));
+  const foldLeft = (err: HandlerError): RT.ReaderTask<RequestContext, Response<any>> => (context) =>
+    T.of(context.res.status(err.code).send(err.message));
 
   const foldRight = (): RT.ReaderTask<RequestContext, Response<any>> => (context) => T.of(context.res.sendStatus(200));
 
