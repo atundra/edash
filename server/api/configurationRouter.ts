@@ -8,6 +8,9 @@ import * as RE from 'fp-ts/lib/ReaderEither';
 import * as TE from 'fp-ts/lib/TaskEither';
 import * as T from 'fp-ts/lib/Task';
 import * as RT from 'fp-ts/lib/ReaderTask';
+import * as H from 'hyper-ts/lib/index';
+import * as HE from 'hyper-ts/lib/express';
+import { NonEmptyString } from 'io-ts-types/lib/NonEmptyString';
 
 import { validateWidgetConfig } from '../validation';
 import { pipe } from 'fp-ts/lib/pipeable';
@@ -28,30 +31,36 @@ try {
 const getConfiguration = (id: string) => readFileP(`${CONFIGURATION_PATH}/${id}.json`);
 const updateConfiguration = (id: string, data: string) => writeFileP(`${CONFIGURATION_PATH}/${id}.json`, data);
 
+const getRequiredParamError = <T>(name: T) => new HandlerError(400, `Query param ${name} is required`);
+
 const getRequiredParam = <Name extends string>(
   name: Name
 ): RE.ReaderEither<RequestContext, HandlerError, RequestContext['req']['params'][Name]> => (context) =>
-  E.fromNullable(new HandlerError(400, `Query param ${name} is required`))(context.req.params[name]);
+  E.fromNullable(getRequiredParamError(name))(context.req.params[name]);
+
+const getConfig = (id: string): TE.TaskEither<HandlerError, Buffer> =>
+  TE.tryCatch(
+    () => getConfiguration(id),
+    // Shitty node js typings for Promise meh
+    (reason) =>
+      (reason as NodeJS.ErrnoException).code === 'ENOENT'
+        ? new HandlerError(404, `Config with id ${id} not found`)
+        : new HandlerError(500, `Can't get config with id ${id}`)
+  );
+
+const foldLeft = (err: HandlerError): RT.ReaderTask<RequestContext, Response<any>> => (context) =>
+  T.of(context.res.status(err.code).send(err.message));
 
 const getHandler: RequestHandler = async (req, res, next) => {
-  const getConfig = (id: string): TE.TaskEither<HandlerError, Buffer> =>
-    TE.tryCatch(
-      () => getConfiguration(id),
-      // Shitty node js typings for Promise meh
-      (reason) =>
-        (reason as NodeJS.ErrnoException).code === 'ENOENT'
-          ? new HandlerError(404, `Config with id ${id} not found`)
-          : new HandlerError(500, `Can't get config with id ${id}`)
-    );
-
   const task = pipe(
     RE.ask<RequestContext>(),
     RE.chain(() => getRequiredParam('id')),
     RTE.fromReaderEither,
-    RTE.chain((id) => RTE.fromTaskEither(getConfig(id)))
+    RTE.chain((id) => RTE.fromTaskEither(getConfig(id))),
+    RTE.fold(foldLeft, (buffer) => (ctx) => T.of(ctx.res.send(buffer)))
   );
 
-  return RTE.run(task, { req, res, next });
+  return RT.run(task, { req, res, next });
 };
 
 interface RequestContext {
@@ -77,9 +86,6 @@ const putHandler: RequestHandler = async (req, res, next) => {
       (reason) => new HandlerError(500, String(reason))
     );
 
-  const foldLeft = (err: HandlerError): RT.ReaderTask<RequestContext, Response<any>> => (context) =>
-    T.of(context.res.status(err.code).send(err.message));
-
   const foldRight = (): RT.ReaderTask<RequestContext, Response<any>> => (context) => T.of(context.res.sendStatus(200));
 
   const task = pipe(
@@ -94,6 +100,20 @@ const putHandler: RequestHandler = async (req, res, next) => {
   return RT.run(task, { req, res, next });
 };
 
-const router = Router().get('/:id', getHandler).put('/:id', putHandler);
+const sendConfig = (buffer: Buffer): H.Middleware<H.StatusOpen, H.ResponseEnded, HandlerError, void> =>
+  pipe(
+    H.status(H.Status.OK),
+    H.ichain(H.closeHeaders),
+    H.ichain(() => H.modifyConnection((c) => c.setBody(buffer)))
+  );
+
+const get: H.Middleware<H.StatusOpen, H.ResponseEnded, HandlerError, void> = pipe(
+  H.decodeParam('id', NonEmptyString.decode),
+  H.mapLeft(() => getRequiredParamError('id')),
+  H.ichain((id) => H.fromTaskEither(getConfig(id))),
+  H.ichain(sendConfig)
+);
+
+const router = Router().get('/boom/:id', HE.toRequestHandler(get)).get('/:id', getHandler).put('/:id', putHandler);
 
 export default router;
