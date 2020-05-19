@@ -11,6 +11,7 @@ import { NonEmptyString } from 'io-ts-types/lib/NonEmptyString';
 import { validateWidgetConfig } from '../validation';
 import { pipe } from 'fp-ts/lib/pipeable';
 import { Errors } from 'io-ts';
+import { WidgetConfig } from '../renderer/types';
 
 class HandlerError {
   constructor(public code: H.Status, public message: string) {}
@@ -42,6 +43,12 @@ const getConfig = (id: string): TE.TaskEither<HandlerError, Buffer> =>
         : new HandlerError(500, `Can't get config with id ${id}`)
   );
 
+const setConfig = (id: string, config: WidgetConfig): TE.TaskEither<HandlerError, void> =>
+  TE.tryCatch(
+    () => updateConfiguration(id, JSON.stringify(config)),
+    (reason) => new HandlerError(500, String(reason))
+  );
+
 const validationErrorsToHandlerError = (errors: Errors) =>
   new HandlerError(400, `WidgetConfig validate errors:\n${PathReporter.report(E.left(errors)).join('\n')}`);
 
@@ -53,16 +60,12 @@ const sendConfig = (buffer: Buffer): H.Middleware<H.StatusOpen, H.ResponseEnded,
   );
 
 const sendOk = (): H.Middleware<H.StatusOpen, H.ResponseEnded, HandlerError, void> =>
-  pipe(
-    H.status(200),
-    H.ichain(() => H.closeHeaders()),
-    H.ichain(() => H.end())
-  );
+  pipe(H.status(200), H.ichain(H.closeHeaders), H.ichain(H.end));
 
 const sendError = (err: HandlerError): H.Middleware<H.StatusOpen, H.ResponseEnded, never, void> =>
   pipe(
     H.status(err.code),
-    H.ichain(() => H.closeHeaders()),
+    H.ichain(H.closeHeaders),
     H.ichain(() => H.send(err.message))
   );
 
@@ -73,14 +76,7 @@ const put: H.Middleware<H.StatusOpen, H.ResponseEnded, HandlerError, void> = pip
     pipe(
       H.decodeParam('id', NonEmptyString.decode),
       H.mapLeft(() => getRequiredParamError('id')),
-      H.ichain((id) =>
-        H.fromTaskEither(
-          TE.tryCatch(
-            () => updateConfiguration(id, JSON.stringify(config)),
-            (reason) => new HandlerError(500, String(reason))
-          )
-        )
-      )
+      H.ichain((id) => H.fromTaskEither(setConfig(id, config)))
     )
   ),
   H.ichain(sendOk),
