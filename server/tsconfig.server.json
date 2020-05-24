@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "es2017",
+    "noImplicitAny": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "jsx": "react",
+    "typeRoots": ["./node_modules/@types", "./definitions"]
+  }
+}

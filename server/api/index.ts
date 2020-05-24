@@ -45,7 +45,7 @@ const updateMapImageIfNeeded = async (filename: string): Promise<boolean> => {
 };
 
 const pngHanlder: RequestHandler = async (req, res, next) => {
-  const imageNamePNG = path.resolve(__dirname, 'image_cache/lastimage.png');
+  const imageNamePNG = path.resolve(__dirname, '../image_cache/lastimage.png');
   await updateMapImageIfNeeded(imageNamePNG);
 
   res.sendFile(imageNamePNG, null, (err) => {
@@ -58,8 +58,8 @@ const pngHanlder: RequestHandler = async (req, res, next) => {
 };
 
 const bmpHandler: RequestHandler = async (req, res, next) => {
-  const imageNamePNG = path.resolve(__dirname, 'image_cache/lastimage.png');
-  const imageNameBMP = path.resolve(__dirname, 'image_cache/lastimage.bmp');
+  const imageNamePNG = path.resolve(__dirname, '../image_cache/lastimage.png');
+  const imageNameBMP = path.resolve(__dirname, '../image_cache/lastimage.bmp');
 
   const updated = await updateMapImageIfNeeded(imageNamePNG);
   if (updated) {
@@ -77,15 +77,15 @@ const bmpHandler: RequestHandler = async (req, res, next) => {
 };
 
 const binHandler: RequestHandler = async (req, res, next) => {
-  const imageNamePNG = path.resolve(__dirname, 'image_cache/lastimage.png');
+  const imageNamePNG = path.resolve(__dirname, '../image_cache/lastimage.png');
   await updateMapImageIfNeeded(imageNamePNG);
   const bitmapBuffer = await pngStreamToBitmap(createReadStream(imageNamePNG));
   res.send(bitmapBuffer);
 };
 
 const randomHandler: RequestHandler = async (req, res, next) => {
-  const imageNameJPG = path.resolve(__dirname, 'image_cache/rand.jpg');
-  const imageNameBMP = path.resolve(__dirname, 'image_cache/rand.bmp');
+  const imageNameJPG = path.resolve(__dirname, '../image_cache/rand.jpg');
+  const imageNameBMP = path.resolve(__dirname, '../image_cache/rand.bmp');
 
   const url = 'https://picsum.photos/640/384.jpg';
   await loadFile({ url, output: imageNameJPG });
@@ -104,8 +104,8 @@ const randomHandler: RequestHandler = async (req, res, next) => {
 };
 
 const randomBinHandler: RequestHandler = async (req, res, next) => {
-  const imageNameJPG = path.resolve(__dirname, 'image_cache/rand.jpg');
-  const imageNamePNG = path.resolve(__dirname, 'image_cache/rand.png');
+  const imageNameJPG = path.resolve(__dirname, '../image_cache/rand.jpg');
+  const imageNamePNG = path.resolve(__dirname, '../image_cache/rand.png');
 
   const url = 'https://picsum.photos/640/384.jpg';
 

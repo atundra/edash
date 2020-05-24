@@ -1,5 +1,8 @@
 import { config } from 'dotenv';
+import { parseEnv } from './env';
 config();
+
+export const ENV = parseEnv(process.env.ENV);
 
 export const YANDEX_API_KEY = process.env.YANDEX_API_KEY;
 export const GEOCODE_BASE_URL = 'https://geocode-maps.yandex.ru/1.x';

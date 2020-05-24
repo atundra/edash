@@ -1,12 +1,21 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "esnext",
     "moduleResolution": "node",
     "target": "es2017",
     "noImplicitAny": true,
     "strict": true,
     "esModuleInterop": true,
-    "jsx": "react",
-    "typeRoots": ["./node_modules/@types", "./definitions"]
-  }
+    "jsx": "preserve",
+    "typeRoots": ["./node_modules/@types", "./definitions"],
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true
+  },
+  "exclude": ["node_modules"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"]
 }
