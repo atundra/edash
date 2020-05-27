@@ -1,4 +1,5 @@
 import { Router, RequestHandler, Request } from 'express';
+import bodyParser from 'body-parser';
 import { generate as generateMapUrl } from '../mapUrl';
 import path from 'path';
 import { convertToBMP as convertImageToBMP, convertSimple as convertImageSimple, convertBuffer } from '../image';
@@ -14,6 +15,7 @@ import fsStore from 'cache-manager-fs-hash';
 import * as either from 'fp-ts/lib/Either';
 import * as taskEither from 'fp-ts/lib/TaskEither';
 import configurationRouter from './configurationRouter';
+import { router as authRouter } from './auth';
 
 let imageLoadedTs = 0;
 
@@ -236,6 +238,7 @@ const layoutBinHandler: RequestHandler<{}, Buffer> = async (req, res, next) => {
 };
 
 export const router = Router()
+  .use(bodyParser.json())
   .get('/image.bin', binHandler)
   .get('/image.png', pngHanlder)
   .get('/image.bmp', bmpHandler)
@@ -244,4 +247,5 @@ export const router = Router()
   .get('/layout.png', layoutPngHandler)
   .get('/layout.html', layoutHtmlHandler)
   .get('/layout.bin', layoutBinHandler)
-  .use('/configuration', configurationRouter);
+  .use('/configuration', configurationRouter)
+  .use('/auth', authRouter);

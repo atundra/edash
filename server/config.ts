@@ -45,3 +45,7 @@ export const WEATHER_LON = process.env.WEATHER_LAT !== undefined ? Number(proces
 
 // Increment to discard current widget data cache
 export const CACHE_GENERATION = 1;
+
+export const GITHUB_CLIENT_SECRET = String(process.env.GITHUB_CLIENT_SECRET);
+export const GITHUB_CLIENT_ID = String(process.env.GITHUB_CLIENT_ID);
+export const GITHUB_CALLBACK_URL = `http://localhost:${PORT}/api/auth/github/callback`;

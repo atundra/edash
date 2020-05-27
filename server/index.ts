@@ -1,5 +1,4 @@
 import express from 'express';
-import bodyParser from 'body-parser';
 import next from 'next';
 import { router as apiRouter } from './api';
 import { PORT, ENV } from './config';
@@ -20,7 +19,6 @@ const runServer = () =>
     })
     .then((nextServer) =>
       express()
-        .use(bodyParser.json())
         .use('/api', apiRouter)
         .all('*', (req, res, next) => {
           const parsed = parse(req.url, true);
