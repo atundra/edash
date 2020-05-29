@@ -5,6 +5,12 @@ import {
 } from 'passport-github';
 import type { VerifyCallback as Oauth2VerifyCallback } from 'passport-oauth2';
 import { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_CALLBACK_URL } from './config';
+import passport, { Profile } from 'passport';
+import TE, { TaskEither } from 'fp-ts/lib/TaskEither';
+// import T from 'fp-ts/lib/Task';
+// import { left, right } from 'fp-ts/lib/Either';
+
+export const passportInstance = passport;
 
 const getGithubStrategyConfig = (): GithubStrategyOptions => ({
   clientID: GITHUB_CLIENT_ID,
@@ -17,6 +23,37 @@ const verifyCallback = (
   refreshToken: string,
   profile: GithubProfile,
   done: Oauth2VerifyCallback
-): void => {};
+): void => {
+  // const x = findOrCreateUser(profile);
+  // User.findOrCreate({ githubId: profile.id }, function (err, user) {
+  //   return cb(err, user);
+  // });
+};
 
-const getGithubStrategy = () => new GithubStrategy(getGithubStrategyConfig(), verifyCallback);
+export const getGithubStrategy = () => new GithubStrategy(getGithubStrategyConfig(), verifyCallback);
+
+class CreateUserError extends Error {
+  constructor(public readonly reason: string) {
+    super(reason);
+  }
+}
+
+const isGithubProfile = (profile: Profile): profile is GithubProfile => profile.provider === 'github';
+
+const findOrCreateUser = (profile: Profile): TaskEither<CreateUserError, void> => {
+  const suspiciousUser = false;
+  if (suspiciousUser) {
+    return TE.left(new CreateUserError('Suspicious'));
+  }
+
+  if (isGithubProfile(profile)) {
+    const user = {
+      github: profile,
+    };
+
+    // TE.tryCatchK();
+    return TE.right(undefined);
+  }
+
+  return TE.right(undefined);
+};

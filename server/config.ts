@@ -11,6 +11,8 @@ export const CLUSTER_POINTS_MAX_DISTANCE_M = 1000 * 100;
 
 export const ENABLE_GOOGLE_API = Boolean(process.env.ENABLE_GOOGLE_API);
 
+export const EXPRESS_SESSION_SECRET = 'fatproductspine';
+
 export const ENV = parseEnv(process.env.ENV);
 
 export const GITHUB_CALLBACK_URL = `http://localhost:${PORT}/api/auth/github/callback`;
@@ -34,7 +36,7 @@ export const IMAGE_MAX_AGE = 1000 * 60 * 60 * 6;
 export const LAYOUT_COLUMNS_COUNT = 16;
 export const LAYOUT_ROWS_COUNT = 12;
 
-export const MONGO_CONNECTION_URI = 'mongodb://localhost:27017';
+export const MONGO_CONNECTION_URI = 'mongodb://localhost:27017/edash';
 
 export const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY;
 
