@@ -16,7 +16,7 @@ type Config = typeof CONFIG;
 
 const runNextServer = RTE.rightReaderTask<Config, never, NextServer>(({ ENV }) => async () => {
   const server = next({ dev: isDev(ENV) });
-  await server.prepare();
+  await server.prepare().then(log('Next server started'));
   return server;
 });
 
