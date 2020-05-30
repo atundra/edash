@@ -3,10 +3,11 @@ import express, { Application } from 'express';
 import { ApplicationRequestHandler } from 'express-serve-static-core';
 import session from 'express-session';
 import bodyParser from 'body-parser';
-import { MongoClient } from 'mongodb';
+import { Db } from 'mongodb';
 import NextServer from 'next/dist/next-server/server/next-server';
 import * as E from 'fp-ts/lib/Either';
 import * as TE from 'fp-ts/lib/TaskEither';
+import * as RE from 'fp-ts/lib/ReaderEither';
 import * as RTE from 'fp-ts/lib/ReaderTaskEither';
 import { pipe } from 'fp-ts/lib/pipeable';
 import { getPassportMiddleware } from './passport';
@@ -17,31 +18,34 @@ const use: ApplicationRequestHandler<(app: Application) => Application> = <A ext
   app: Application
 ) => app.use(...args);
 
-export const createServer = (mongoClient: MongoClient) => (
+export const createServer = (db: Db) => (
   nextServer: NextServer
-): RTE.ReaderTaskEither<Config, NodeJS.ErrnoException, Application> => ({ EXPRESS_SESSION_SECRET }) =>
+): RTE.ReaderTaskEither<Config, NodeJS.ErrnoException, Application> =>
   pipe(
-    getPassportMiddleware(),
-    (passportInstance) =>
-      E.tryCatch(
-        () =>
-          pipe(
-            express(),
-            use(session({ secret: EXPRESS_SESSION_SECRET, resave: false, saveUninitialized: false })),
-            use(bodyParser.urlencoded({ extended: false })),
-            use(passportInstance.initialize()),
-            use(passportInstance.session()),
-            use('/api', apiRouter),
-            (app) =>
-              app.all('*', (req, res, next) => {
-                const parsed = parse(req.url, true);
-                const handler = nextServer.getRequestHandler();
-                return handler(req, res, parsed);
-              })
-          ),
-        (err) => err as NodeJS.ErrnoException
-      ),
-    TE.fromEither
+    RTE.ask<Config>(),
+    RTE.chain(() => RTE.fromReaderEither(RE.rightReader(getPassportMiddleware(db)))),
+    RTE.chain((passport) => (config) =>
+      TE.fromEither(
+        E.tryCatch(
+          () =>
+            pipe(
+              express(),
+              use(session({ secret: config.EXPRESS_SESSION_SECRET, resave: false, saveUninitialized: false })),
+              use(bodyParser.urlencoded({ extended: false })),
+              use(passport.initialize()),
+              use(passport.session()),
+              use('/api', apiRouter({ config, passport })),
+              (app) =>
+                app.all('*', (req, res, next) => {
+                  const parsed = parse(req.url, true);
+                  const handler = nextServer.getRequestHandler();
+                  return handler(req, res, parsed);
+                })
+            ),
+          (err) => err as NodeJS.ErrnoException
+        )
+      )
+    )
   );
 
 export const listen = (server: Application, port: string | number): TE.TaskEither<Error, Application> =>

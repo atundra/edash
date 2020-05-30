@@ -1,23 +1,20 @@
-import { Router, RequestHandler } from 'express';
-import passport from 'passport';
+import { createRouter, nestRouter, applyRouterMethodMap } from './utils';
+import { pipe } from 'fp-ts/lib/pipeable';
+import type { Router } from './types';
 
-type Method = 'all' | 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head';
+const githubRouter: Router = pipe(
+  createRouter(),
+  applyRouterMethodMap([
+    ['get', '/', ({ passport }) => passport.authenticate('github')],
+    [
+      'get',
+      '/callback',
+      ({ passport }) => passport.authenticate('github', { failureRedirect: '/login' }),
+      () => (req, res) => {
+        res.redirect('/');
+      },
+    ],
+  ])
+);
 
-type RouteHandler = [Method, string, ...RequestHandler[]];
-
-const createRouter = (routeHandlers: RouteHandler[]) =>
-  routeHandlers.reduce((router, [method, route, ...handlers]) => router[method](route, ...handlers), Router());
-
-const githubRouter = createRouter([
-  ['get', '/', passport.authenticate('github')],
-  [
-    'get',
-    '/callback',
-    passport.authenticate('github', { failureRedirect: '/login' }),
-    (req, res) => {
-      res.redirect('/');
-    },
-  ],
-]);
-
-export const router = Router().use('/github', githubRouter);
+export const router: Router = pipe(createRouter(), nestRouter('/github', githubRouter));

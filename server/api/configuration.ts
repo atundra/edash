@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router } from './types';
 import { readFile, mkdirSync, accessSync, writeFile } from 'fs';
 import { promisify } from 'util';
 import { PathReporter } from 'io-ts/lib/PathReporter';
@@ -12,6 +12,7 @@ import { validateWidgetConfig } from '../validation';
 import { pipe } from 'fp-ts/lib/pipeable';
 import { Errors } from 'io-ts';
 import { WidgetConfig } from '../renderer/types';
+import { createRouter, applyRouterMethodMap } from './utils';
 
 class HandlerError {
   constructor(public code: H.Status, public message: string) {}
@@ -91,6 +92,10 @@ const get: H.Middleware<H.StatusOpen, H.ResponseEnded, HandlerError, void> = pip
   H.orElse(sendError)
 );
 
-const router = Router().get('/:id', HE.toRequestHandler(get)).put('/:id', HE.toRequestHandler(put));
-
-export default router;
+export const router: Router = pipe(
+  createRouter(),
+  applyRouterMethodMap([
+    ['get', '/:id', () => HE.toRequestHandler(get)],
+    ['put', '/:id', () => HE.toRequestHandler(put)],
+  ])
+);

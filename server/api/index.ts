@@ -1,11 +1,11 @@
-import { Router, RequestHandler, Request } from 'express';
+import { Router as ExpressRouter, RequestHandler, Request } from 'express';
 import bodyParser from 'body-parser';
 import { generate as generateMapUrl } from '../mapUrl';
 import path from 'path';
 import { convertToBMP as convertImageToBMP, convertSimple as convertImageSimple, convertBuffer } from '../image';
 import { exists as isFileExists, load as loadFile } from '../file';
 import { PathLike, createReadStream } from 'fs';
-import { IMAGE_MAX_AGE, TRACKS, LAYOUT_COLUMNS_COUNT, LAYOUT_ROWS_COUNT, CACHE_GENERATION } from '../config';
+import { IMAGE_MAX_AGE, TRACKS, LAYOUT_COLUMNS_COUNT, LAYOUT_ROWS_COUNT, CACHE_GENERATION, Config } from '../config';
 import { pngStreamToBitmap } from '../createBitmap';
 import Renderer from '../renderer';
 import { WidgetConfig } from '../renderer/types';
@@ -14,8 +14,11 @@ import cacheManager from 'cache-manager';
 import fsStore from 'cache-manager-fs-hash';
 import * as either from 'fp-ts/lib/Either';
 import * as taskEither from 'fp-ts/lib/TaskEither';
-import configurationRouter from './configurationRouter';
+import { router as configurationRouter } from './configuration';
 import { router as authRouter } from './auth';
+import { pipe } from 'fp-ts/lib/pipeable';
+import { nestRouter, createRouter, mapRouter } from './utils';
+import type { Router } from './types';
 
 let imageLoadedTs = 0;
 
@@ -237,15 +240,21 @@ const layoutBinHandler: RequestHandler<{}, Buffer> = async (req, res, next) => {
   );
 };
 
-export const router = Router()
-  .use(bodyParser.json())
-  .get('/image.bin', binHandler)
-  .get('/image.png', pngHanlder)
-  .get('/image.bmp', bmpHandler)
-  .get('/random.bin', randomBinHandler)
-  .get('/random', randomHandler)
-  .get('/layout.png', layoutPngHandler)
-  .get('/layout.html', layoutHtmlHandler)
-  .get('/layout.bin', layoutBinHandler)
-  .use('/configuration', configurationRouter)
-  .use('/auth', authRouter);
+export const router: Router = pipe(
+  createRouter(),
+  mapRouter((router) => router.use(bodyParser.json())),
+  mapRouter((router) =>
+    router
+      .get('/image.bin', binHandler)
+      .get('/image.png', pngHanlder)
+      .get('/image.bmp', bmpHandler)
+      .get('/random.bin', randomBinHandler)
+      .get('/random', randomHandler)
+      .get('/layout.png', layoutPngHandler)
+      .get('/layout.html', layoutHtmlHandler)
+      .get('/layout.bin', layoutBinHandler)
+      .use('/auth', authRouter)
+  ),
+  nestRouter('/auth', authRouter),
+  nestRouter('/configuration', configurationRouter)
+);

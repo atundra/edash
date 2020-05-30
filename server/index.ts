@@ -3,7 +3,7 @@ import next from 'next';
 import * as CONFIG from './config';
 import type { Config } from './config';
 import { isDev } from './config/env';
-import { createMongoClient } from './db';
+import { createMongoClient, getDb } from './db';
 import * as TE from 'fp-ts/lib/TaskEither';
 import * as RT from 'fp-ts/lib/ReaderTask';
 import * as RTE from 'fp-ts/lib/ReaderTaskEither';
@@ -30,9 +30,12 @@ const expressServerListen = (
 RT.run(
   pipe(
     RTE.ask<Config>(),
+
     RTE.chain(({ MONGO_CONNECTION_URI }) => RTE.fromTaskEither(createMongoClient(MONGO_CONNECTION_URI))),
+    RTE.map(getDb),
     RTE.mapLeft((mongoErr) => new Error(mongoErr.message)),
-    RTE.chain((mongoClient) => pipe(runNextServer, RTE.chain(createExpressServer(mongoClient)))),
+
+    RTE.chain((db) => pipe(runNextServer, RTE.chain(createExpressServer(db)))),
     RTE.chain(expressServerListen),
     RTE.fold(
       (err) => RT.fromIO(error(err)),

@@ -5,7 +5,7 @@ export const createMongoClient: (connectionUri: string) => TaskEither<MongoError
   MongoClient.connect
 );
 
-const getDb = (client: MongoClient) => client.db();
+export const getDb = (client: MongoClient) => client.db();
 
 type User = {
   _id: ObjectId;

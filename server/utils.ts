@@ -176,3 +176,22 @@ export const inspect = <T>(value: T) => {
   console.log(value);
   return value;
 };
+
+/**
+ * Helps to chain non-chainable apis
+ *
+ * @example
+ * type A = {
+ *  m: (...args: any[]) => void
+ * }
+ * const a: A;
+ *
+ * a.m() // => undefined
+ *
+ * const aMap = mapFirst(a => a.m())
+ * aMap(a) // => a;
+ */
+export const mapFirst = <A>(f: (a: A) => unknown) => (fa: A): A => {
+  f(fa);
+  return fa;
+};
