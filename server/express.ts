@@ -12,10 +12,6 @@ import { pipe } from 'fp-ts/lib/pipeable';
 import { getPassportMiddleware } from './passport';
 import { router as apiRouter } from './api';
 import type { Config } from './config';
-import http, { Server } from 'http';
-
-const v = http.createServer(() => {});
-const b = v.listen(12, () => {});
 
 const use: ApplicationRequestHandler<(app: Application) => Application> = <A extends any[]>(...args: A) => (
   app: Application
