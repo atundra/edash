@@ -11,9 +11,7 @@ import * as RTE from 'fp-ts/lib/ReaderTaskEither';
 import { pipe } from 'fp-ts/lib/pipeable';
 import { getPassportMiddleware } from './passport';
 import { router as apiRouter } from './api';
-import * as CONFIG from './config';
-
-type Config = typeof CONFIG;
+import type { Config } from './config';
 
 const use: ApplicationRequestHandler<(app: Application) => Application> = <A extends any[]>(...args: A) => (
   app: Application

@@ -1,7 +1,8 @@
 import type { Application } from 'express';
 import next from 'next';
 import * as CONFIG from './config';
-import { isDev } from './env';
+import type { Config } from './config';
+import { isDev } from './config/env';
 import { createMongoClient } from './db';
 import * as TE from 'fp-ts/lib/TaskEither';
 import * as RTE from 'fp-ts/lib/ReaderTaskEither';
@@ -11,8 +12,6 @@ import { log } from 'fp-ts/lib/Console';
 import NextServer from 'next/dist/next-server/server/next-server';
 import { Server } from 'http';
 import { createServer as createExpressServer } from './express';
-
-type Config = typeof CONFIG;
 
 const runNextServer = RTE.rightReaderTask<Config, never, NextServer>(({ ENV }) => async () => {
   const server = next({ dev: isDev(ENV) });
