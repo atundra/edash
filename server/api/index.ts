@@ -253,7 +253,6 @@ export const router: Router = pipe(
       .get('/layout.png', layoutPngHandler)
       .get('/layout.html', layoutHtmlHandler)
       .get('/layout.bin', layoutBinHandler)
-      .use('/auth', authRouter)
   ),
   nestRouter('/auth', authRouter),
   nestRouter('/configuration', configurationRouter)

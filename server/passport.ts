@@ -1,18 +1,15 @@
-import {
-  Strategy as GithubStrategy,
-  StrategyOptions as GithubStrategyOptions,
-  Profile as GithubProfile,
-} from 'passport-github';
-import type { VerifyCallback as Oauth2VerifyCallback } from 'passport-oauth2';
+import { Strategy as GithubStrategy, Profile as GithubProfile } from 'passport-github';
+// import type { VerifyCallback as Oauth2VerifyCallback } from 'passport-oauth2';
 import type { Config } from './config';
 import passport, { Profile, PassportStatic } from 'passport';
-import TE, { TaskEither } from 'fp-ts/lib/TaskEither';
+import * as TE from 'fp-ts/lib/TaskEither';
 import * as R from 'fp-ts/lib/Reader';
+import * as T from 'fp-ts/lib/Task';
+import * as E from 'fp-ts/lib/Either';
 import { pipe } from 'fp-ts/lib/pipeable';
-import { MongoClient, Db } from 'mongodb';
-// import T from 'fp-ts/lib/Task';
-// import { left, right } from 'fp-ts/lib/Either';
+import { MongoClient, Db, FilterQuery, MongoError } from 'mongodb';
 import { mapFirst } from './utils';
+import { getCollection, User } from './db';
 
 export const passportInstance = passport;
 
@@ -21,8 +18,22 @@ export const getPassportMiddleware = (db: Db): R.Reader<Config, PassportStatic> 
     R.ask<Config>(),
     R.map(() => passport),
     R.chain(useGithubStrategy(db)),
-    R.map(mapFirst((p) => p.serializeUser((user, done) => {}))),
-    R.map(mapFirst((p) => p.deserializeUser((id, done) => {})))
+    R.map(
+      mapFirst((p) =>
+        p.serializeUser((user, done) => {
+          console.log('serializeUser');
+          console.log(user);
+        })
+      )
+    ),
+    R.map(
+      mapFirst((p) =>
+        p.deserializeUser((id, done) => {
+          console.log('deserializeUser');
+          console.log(id);
+        })
+      )
+    )
   );
 
 const useGithubStrategy = (db: Db) => (p: PassportStatic): R.Reader<Config, PassportStatic> => ({
@@ -38,7 +49,15 @@ const useGithubStrategy = (db: Db) => (p: PassportStatic): R.Reader<Config, Pass
         callbackURL: GITHUB_CALLBACK_URL,
       },
       (accessToken, refreshToken, profile, done) => {
-        findOrCreateUser(db, profile);
+        const task = pipe(
+          findOrCreateUser(db, profile),
+          TE.fold(
+            (err) => T.of(done(err)),
+            (user) => T.of(done(null, user))
+          )
+        );
+
+        return task();
       }
     )
   );
@@ -51,7 +70,7 @@ class CreateUserError extends Error {
 
 const isGithubProfile = (profile: Profile): profile is GithubProfile => profile.provider === 'github';
 
-const findOrCreateUser = (db: Db, profile: Profile): TaskEither<CreateUserError, void> => {
+const findOrCreateUser = (db: Db, profile: Profile): TE.TaskEither<CreateUserError | MongoError, User> => {
   const suspiciousUser = false;
   if (suspiciousUser) {
     return TE.left(new CreateUserError('Suspicious'));
@@ -62,13 +81,17 @@ const findOrCreateUser = (db: Db, profile: Profile): TaskEither<CreateUserError,
       github: profile,
     };
 
-    // User.findOrCreate({ githubId: profile.id }, function (err, user) {
-    //   return cb(err, user);
-    // });
-
-    // TE.tryCatchK();
-    return TE.right(undefined);
+    return pipe(
+      db,
+      getCollection('users'),
+      (users) =>
+        TE.tryCatch(
+          () => users.findOneAndUpdate({ 'github.id': profile.id }, { $set: user }, { upsert: true }),
+          (err) => err as MongoError
+        ),
+      TE.map(() => user)
+    );
   }
 
-  return TE.right(undefined);
+  return TE.left(new CreateUserError('uuuu suka'));
 };

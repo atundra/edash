@@ -8,6 +8,8 @@ import NextServer from 'next/dist/next-server/server/next-server';
 import * as E from 'fp-ts/lib/Either';
 import * as TE from 'fp-ts/lib/TaskEither';
 import * as RE from 'fp-ts/lib/ReaderEither';
+import * as RT from 'fp-ts/lib/ReaderTask';
+import * as R from 'fp-ts/lib/Reader';
 import * as RTE from 'fp-ts/lib/ReaderTaskEither';
 import { pipe } from 'fp-ts/lib/pipeable';
 import { getPassportMiddleware } from './passport';
@@ -22,8 +24,9 @@ export const createServer = (db: Db) => (
   nextServer: NextServer
 ): RTE.ReaderTaskEither<Config, NodeJS.ErrnoException, Application> =>
   pipe(
-    RTE.ask<Config>(),
-    RTE.chain(() => RTE.fromReaderEither(RE.rightReader(getPassportMiddleware(db)))),
+    R.ask<Config>(),
+    R.chain(() => getPassportMiddleware(db)),
+    RTE.rightReader,
     RTE.chain((passport) => (config) =>
       TE.fromEither(
         E.tryCatch(
