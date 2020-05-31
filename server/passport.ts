@@ -7,7 +7,7 @@ import * as R from 'fp-ts/lib/Reader';
 import * as T from 'fp-ts/lib/Task';
 import * as E from 'fp-ts/lib/Either';
 import { pipe } from 'fp-ts/lib/pipeable';
-import { MongoClient, Db, FilterQuery, MongoError } from 'mongodb';
+import { MongoClient, Db, FilterQuery, MongoError, ObjectId } from 'mongodb';
 import { mapFirst } from './utils';
 import { getCollection, User } from './db';
 
@@ -19,18 +19,21 @@ export const getPassportMiddleware = (db: Db): R.Reader<Config, PassportStatic> 
     R.map(() => passport),
     R.chain(useGithubStrategy(db)),
     R.map(
-      mapFirst((p) =>
-        p.serializeUser((user, done) => {
-          console.log('serializeUser');
-          console.log(user);
-        })
-      )
+      mapFirst((p) => p.serializeUser<User, string>((user: User, done) => done(null, user._id?.toString())))
     ),
     R.map(
       mapFirst((p) =>
-        p.deserializeUser((id, done) => {
-          console.log('deserializeUser');
-          console.log(id);
+        p.deserializeUser<User, string>((id, done) => {
+          const task = pipe(
+            db,
+            findUser(id),
+            TE.fold(
+              (err) => T.of(done(err)),
+              (user) => T.of(done(null, user))
+            )
+          );
+
+          return task();
         })
       )
     )
@@ -70,6 +73,21 @@ class CreateUserError extends Error {
 
 const isGithubProfile = (profile: Profile): profile is GithubProfile => profile.provider === 'github';
 
+const findUser = (id: string) => (db: Db) =>
+  pipe(db, getCollection('users'), (users) =>
+    TE.tryCatch(
+      () =>
+        users.findOne({ _id: new ObjectId(id) }).then((user) => {
+          if (!user) {
+            throw Error('No such user');
+          }
+
+          return user;
+        }),
+      (err) => err as MongoError
+    )
+  );
+
 const findOrCreateUser = (db: Db, profile: Profile): TE.TaskEither<CreateUserError | MongoError, User> => {
   const suspiciousUser = false;
   if (suspiciousUser) {
@@ -81,15 +99,18 @@ const findOrCreateUser = (db: Db, profile: Profile): TE.TaskEither<CreateUserErr
       github: profile,
     };
 
-    return pipe(
-      db,
-      getCollection('users'),
-      (users) =>
-        TE.tryCatch(
-          () => users.findOneAndUpdate({ 'github.id': profile.id }, { $set: user }, { upsert: true }),
-          (err) => err as MongoError
-        ),
-      TE.map(() => user)
+    return pipe(db, getCollection('users'), (users) =>
+      TE.tryCatch(
+        () =>
+          users.findOneAndUpdate({ 'github.id': profile.id }, { $set: user }, { upsert: true }).then((updated) => {
+            if (!updated.ok) {
+              throw Error('sdfsdf');
+            }
+
+            return updated.value as User;
+          }),
+        (err) => err as MongoError
+      )
     );
   }
 

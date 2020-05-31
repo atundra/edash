@@ -37,7 +37,7 @@ export const createServer = (db: Db) => (
               use(bodyParser.urlencoded({ extended: false })),
               use(passport.initialize()),
               use(passport.session()),
-              use('/api', apiRouter({ config, passport })),
+              use('/api', apiRouter({ config, passport, db })),
               (app) =>
                 app.all('*', (req, res, next) => {
                   const parsed = parse(req.url, true);

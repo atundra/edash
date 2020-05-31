@@ -9,6 +9,7 @@ export const createMongoClient: (connectionUri: string) => TaskEither<MongoError
 export const getDb = (client: MongoClient) => client.db();
 
 export type User = {
+  id?: string;
   _id?: ObjectId;
   github?: GithubProfile;
 };
