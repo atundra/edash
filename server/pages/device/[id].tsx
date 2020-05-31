@@ -18,7 +18,7 @@ const fetcher: FetcherFn<Device> = (url) =>
   });
 
 export default () => {
-  const { data, error } = useSWR('/api/devices', fetcher);
+  const { data, error } = useSWR('/api/device', fetcher);
   const router = useRouter();
 
   if (error instanceof AuthError) {

@@ -15,7 +15,7 @@ export type Router = Reader<Context, ExpressRouter>;
 
 export type Method = 'all' | 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head';
 
-type ReqHandler = Reader<Context, RequestHandler>;
+export type ReqHandler = Reader<Context, RequestHandler>;
 
 /**
  * @example

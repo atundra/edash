@@ -257,5 +257,5 @@ export const router: Router = pipe(
   ),
   nestRouter('/auth', authRouter),
   nestRouter('/configuration', configurationRouter),
-  nestRouter('/devices', deviceRouter)
+  nestRouter('/device', deviceRouter)
 );
