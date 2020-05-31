@@ -14,11 +14,12 @@ import cacheManager from 'cache-manager';
 import fsStore from 'cache-manager-fs-hash';
 import * as either from 'fp-ts/lib/Either';
 import * as taskEither from 'fp-ts/lib/TaskEither';
-import { router as configurationRouter } from './configuration';
-import { router as authRouter } from './auth';
 import { pipe } from 'fp-ts/lib/pipeable';
 import { nestRouter, createRouter, mapRouter } from './utils';
 import type { Router } from './types';
+import { router as configurationRouter } from './configuration';
+import { router as authRouter } from './auth';
+import { router as deviceRouter } from './device';
 
 let imageLoadedTs = 0;
 
@@ -255,5 +256,6 @@ export const router: Router = pipe(
       .get('/layout.bin', layoutBinHandler)
   ),
   nestRouter('/auth', authRouter),
-  nestRouter('/configuration', configurationRouter)
+  nestRouter('/configuration', configurationRouter),
+  nestRouter('/devices', deviceRouter)
 );

@@ -1,14 +1,30 @@
 import useSWR from 'swr';
 import type { fetcherFn as FetcherFn } from 'swr/dist/types';
+import { useRouter } from 'next/router';
 
 type Device = { id: string };
 
-type Props = { devices: Device[] };
+class AuthError extends Error {}
 
-const fetcher: FetcherFn<Device> = (url) => fetch(url).then((r) => r.json());
+const fetcher: FetcherFn<Device> = (url) =>
+  fetch(url).then((r) => {
+    if (r.ok) {
+      return r.json();
+    }
 
-export default ({ devices }: Props) => {
-  const { data, error } = useSWR('/api/user', fetcher);
+    if (r.status === 403) {
+      throw new AuthError();
+    }
+  });
+
+export default () => {
+  const { data, error } = useSWR('/api/devices', fetcher);
+  const router = useRouter();
+
+  if (error instanceof AuthError) {
+    router.push(`/login?next=${router.asPath}`);
+    return null;
+  }
 
   if (error) return <div>failed to load</div>;
   if (!data) return <div>loading...</div>;

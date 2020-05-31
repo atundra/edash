@@ -7,8 +7,6 @@ import { Db } from 'mongodb';
 import NextServer from 'next/dist/next-server/server/next-server';
 import * as E from 'fp-ts/lib/Either';
 import * as TE from 'fp-ts/lib/TaskEither';
-import * as RE from 'fp-ts/lib/ReaderEither';
-import * as RT from 'fp-ts/lib/ReaderTask';
 import * as R from 'fp-ts/lib/Reader';
 import * as RTE from 'fp-ts/lib/ReaderTaskEither';
 import { pipe } from 'fp-ts/lib/pipeable';
@@ -33,6 +31,7 @@ export const createServer = (db: Db) => (
           () =>
             pipe(
               express(),
+              // TODO: Configure session storage to use mongodb
               use(session({ secret: config.EXPRESS_SESSION_SECRET, resave: false, saveUninitialized: false })),
               use(bodyParser.urlencoded({ extended: false })),
               use(passport.initialize()),
