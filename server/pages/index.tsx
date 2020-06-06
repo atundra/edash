@@ -1,4 +1,4 @@
-import React from 'react';
+import Link from 'next/link';
 import styles from './index.module.css';
 
 const Index = () => {
@@ -8,6 +8,11 @@ const Index = () => {
         <div className={styles.screen}>
           <div className={styles.text}>
             <h1 className={styles.header}>eDash</h1>
+            <p>
+              <Link href="/dashboard">
+                <a>My dashboard</a>
+              </Link>
+            </p>
           </div>
         </div>
       </div>

@@ -4,6 +4,7 @@ import type { Router as ExpressRouter } from 'express';
 import type { Reader } from 'fp-ts/lib/Reader';
 import type { RequestHandler, RequestHandlerParams } from 'express-serve-static-core';
 import type { Db } from 'mongodb';
+import type { StatusOpen, HeadersOpen, BodyOpen, ResponseEnded } from 'hyper-ts/lib/index';
 
 export type Context = {
   config: Config;
@@ -26,3 +27,5 @@ type RouteHandler = [Method, string, ...ReqHandler[]];
 export type MethodRouteHandlers = RouteHandler[];
 
 export type RouterUseRequestHandler = RequestHandler | RequestHandlerParams;
+
+export type ReqHandlerMiddlewareIStatus = StatusOpen | HeadersOpen | BodyOpen | ResponseEnded;

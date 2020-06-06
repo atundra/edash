@@ -1,8 +1,6 @@
 import { Router } from './types';
 import { readFile, mkdirSync, accessSync, writeFile } from 'fs';
 import { promisify } from 'util';
-import { PathReporter } from 'io-ts/lib/PathReporter';
-import * as E from 'fp-ts/lib/Either';
 import * as TE from 'fp-ts/lib/TaskEither';
 import * as H from 'hyper-ts/lib/index';
 import * as HE from 'hyper-ts/lib/express';
@@ -10,13 +8,8 @@ import { NonEmptyString } from 'io-ts-types/lib/NonEmptyString';
 
 import { validateWidgetConfig } from '../validation';
 import { pipe } from 'fp-ts/lib/pipeable';
-import { Errors } from 'io-ts';
 import { WidgetConfig } from '../renderer/types';
-import { createRouter, applyRouterMethodMap } from './utils';
-
-class HandlerError {
-  constructor(public code: H.Status, public message: string) {}
-}
+import { createRouter, applyRouterMethodMap, HandlerError, validationErrorsToHandlerError } from './utils';
 
 const readFileP = promisify(readFile);
 const writeFileP = promisify(writeFile);
@@ -49,9 +42,6 @@ const setConfig = (id: string, config: WidgetConfig): TE.TaskEither<HandlerError
     () => updateConfiguration(id, JSON.stringify(config)),
     (reason) => new HandlerError(500, String(reason))
   );
-
-const validationErrorsToHandlerError = (errors: Errors) =>
-  new HandlerError(400, `WidgetConfig validate errors:\n${PathReporter.report(E.left(errors)).join('\n')}`);
 
 const sendConfig = (buffer: Buffer): H.Middleware<H.StatusOpen, H.ResponseEnded, HandlerError, void> =>
   pipe(

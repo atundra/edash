@@ -1,6 +1,7 @@
 import { MongoClient, Db, ObjectId, MongoError } from 'mongodb';
 import { TaskEither, taskify } from 'fp-ts/lib/TaskEither';
 import { Profile as GithubProfile } from 'passport-github';
+import * as io from 'io-ts';
 
 export const createMongoClient: (connectionUri: string) => TaskEither<MongoError, MongoClient> = taskify(
   MongoClient.connect
@@ -14,8 +15,16 @@ export type User = {
   github?: GithubProfile;
 };
 
+export type Device = {
+  id: string;
+  name: string;
+  _id?: ObjectId;
+  user: ObjectId;
+};
+
 type CollectionSchemaMap = {
   users: User;
+  devices: Device;
 };
 
 type CollectionName = keyof CollectionSchemaMap;
