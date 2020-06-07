@@ -7,4 +7,5 @@ export default new Widget({
   dataResolver,
   template: Template,
   fallback: Fallback,
+  name: 'Weather Forcast',
 });

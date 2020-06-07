@@ -1,7 +1,7 @@
-import { useSWRAndRouterWithAuthRedirect } from '../../hooks/swr';
+import { useSWRAndRouterWithAuthRedirect } from '../_hooks/swr';
 import Link from 'next/link';
-
-type Device = { id: string; name: string };
+import { ObjectId } from 'mongodb';
+import { Device } from '../../db';
 
 type Props = { devices?: Device[] };
 
@@ -17,8 +17,8 @@ const DevicesList = ({ devices }: Props) => {
   return (
     <ul>
       {devices.map((device) => (
-        <li key={device.id + device.name}>
-          <Link href="/device/[id]" as={`/device/${device.id}`}>
+        <li key={device._id + device.name}>
+          <Link href="/device/[id]" as={`/device/${device._id}`}>
             <a>{device.name}</a>
           </Link>
         </li>

@@ -10,4 +10,5 @@ export default new Widget({
   },
   template: Template,
   fallback: Fallback,
+  name: 'Google Calendar Events',
 });

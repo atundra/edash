@@ -19,4 +19,5 @@ export default new Widget({
     ttl: 60 * 60 * 6,
   },
   optionsSchema,
+  name: 'Parcel Map',
 });

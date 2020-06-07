@@ -1,8 +1,9 @@
 import { useRouter } from 'next/router';
-import { useSWRAndRouterWithAuthRedirect } from '../../hooks/swr';
-import App from '../_components/dashboardConfigurator/App';
+import { useSWRAndRouterWithAuthRedirect } from '../../_hooks/swr';
+import Link from 'next/link';
+import { Device as DbDevice } from '../../../db';
 
-type Device = { id: string; _id: string; name: string } | null;
+type Device = DbDevice | null;
 
 export default () => {
   const {
@@ -17,9 +18,11 @@ export default () => {
 
   return (
     <>
-      <h1>Device {data.name}</h1>
-      <p>Device id: {data.id}</p>
-      <App />
+      <h1>{data.name}</h1>
+      <p>Device uid: {data.uid}</p>
+      <Link href="/device/[id]/configure" as={`/device/${data._id}/configure`}>
+        <a>Configure device</a>
+      </Link>
     </>
   );
 };

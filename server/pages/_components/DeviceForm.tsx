@@ -1,16 +1,16 @@
 import { Form, Field } from 'react-final-form';
 
-type Values = { name: string; id: string };
+type Values = { name: string; uid: string };
 
 type Props = { onSubmit: (values: Values) => void };
 
-const validate = (values: any) => {
+const validate = (values: Partial<Values>) => {
   const errors: Partial<Values> = {};
   if (!values.name) {
     errors.name = 'Required';
   }
-  if (!values.id) {
-    errors.id = 'Required';
+  if (!values.uid) {
+    errors.uid = 'Required';
   }
   return errors;
 };
@@ -51,7 +51,7 @@ export const DeviceForm = ({ onSubmit }: Props) => (
         </p>
 
         <p>
-          <InputField name="id" label="Device Id" validate={required} placeholder="asdf-qwer-7832" />
+          <InputField name="uid" label="Device UID" validate={required} placeholder="asdf-qwer-7832" />
         </p>
 
         <button type="submit">Submit</button>

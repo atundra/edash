@@ -14,15 +14,17 @@ import * as R from 'fp-ts/lib/Reader';
 import * as H from 'hyper-ts/lib/index';
 import * as HE from 'hyper-ts/lib/express';
 import * as F from 'fp-ts/lib/function';
+import * as E from 'fp-ts/lib/Either';
 import * as T from 'fp-ts/lib/Task';
 import * as TE from 'fp-ts/lib/TaskEither';
 import * as io from 'io-ts';
 import { Db, MongoError, ObjectId } from 'mongodb';
 import { TaskEither } from 'fp-ts/lib/TaskEither';
-import { getCollection, Device as DbDevice } from '../db';
+import { getCollection, Device as DbDevice, DeviceConfig } from '../db';
+import { validateWidgetConfig } from '../validation';
 
 export const Device = io.type({
-  id: io.string,
+  uid: io.string,
   name: io.string,
 });
 
@@ -36,7 +38,10 @@ const json = pipe(
 const createDevice = (userId: ObjectId, device: Device, db: Db): TaskEither<MongoError, void> =>
   pipe(
     TE.tryCatch(
-      () => pipe(db, getCollection('devices'), (collection) => collection.insertOne({ ...device, user: userId })),
+      () =>
+        pipe(db, getCollection('devices'), (collection) =>
+          collection.insertOne({ ...device, user: userId, config: { widgets: [] } })
+        ),
       (err) => err as MongoError
     ),
     TE.map(F.constVoid)
@@ -52,13 +57,39 @@ const getDevices = (userId: ObjectId, db: Db): TaskEither<MongoError, DbDevice[]
   );
 };
 
-const getDevice = (id: string, userId: ObjectId, db: Db): TaskEither<MongoError, DbDevice | null> => {
+const getDevice = (id: ObjectId, userId: ObjectId, db: Db): TaskEither<HandlerError, DbDevice> => {
   return TE.tryCatch(
     () =>
       pipe(db, getCollection('devices'), (collection) =>
-        collection.findOne({ user: userId, id }, { projection: { user: 0 } })
+        collection
+          .findOne({ user: userId, _id: id }, { projection: { user: 0 } })
+          .then((value) => {
+            if (!value) {
+              throw new HandlerError(404, `Device with id ${id} not found`);
+            }
+
+            return value;
+          })
+          .catch((err) => {
+            throw new HandlerError(500, 'Server error during getting device');
+          })
       ),
-    (err) => err as MongoError
+    (err) => err as HandlerError
+  );
+};
+
+const updateConfig = (
+  deviceId: ObjectId,
+  userId: ObjectId,
+  config: DbDevice['config'],
+  db: Db
+): TaskEither<HandlerError, void> => {
+  return TE.tryCatch(
+    () =>
+      pipe(db, getCollection('devices'), (collection) =>
+        collection.updateOne({ user: userId, _id: deviceId }, { $set: { config } }).then(F.constVoid)
+      ),
+    (err) => new HandlerError(500, 'Update config server error')
   );
 };
 
@@ -103,12 +134,20 @@ const getAll = (r: ExpressRouter): Router => ({ db }) =>
     return task();
   });
 
+const parseObjectId = (id: string): E.Either<HandlerError, ObjectId> =>
+  E.tryCatch(
+    () => ObjectId.createFromHexString(id),
+    (err) => new HandlerError(400, 'Error parsing object id')
+  );
+
 const getOne = (r: ExpressRouter): Router => ({ db }) =>
   r.get('/:id', (req, res, next) => {
     const task = pipe(
-      getDevice(req.params.id, unsafeGetUserId(req.user!), db),
+      parseObjectId(req.params.id),
+      TE.fromEither,
+      TE.chain((deviceId) => getDevice(deviceId, unsafeGetUserId(req.user!), db)),
       TE.fold(
-        (err) => T.of(res.status(500).end()),
+        (err) => T.of(res.status(err.code).json(err.message).end()),
         (device) => T.of(res.json(device).end())
       )
     );
@@ -116,11 +155,41 @@ const getOne = (r: ExpressRouter): Router => ({ db }) =>
     return task();
   });
 
+export type DashboardConfig = {
+  widgets: [];
+};
+
+const addUpdateConfigHandler = (r: ExpressRouter): Router => ({ db }) =>
+  r.put('/:id/configuration', (req, res, next) =>
+    pipe(
+      parseObjectId(req.params.id),
+      TE.fromEither,
+      TE.chain((deviceId) =>
+        pipe(
+          req.body,
+          DeviceConfig.decode,
+
+          // @TODO: VALIDATE THIS PROPERLY
+          // validateWidgetConfig,
+
+          E.mapLeft(validationErrorsToHandlerError),
+          TE.fromEither,
+          TE.chain((wConfig) => updateConfig(deviceId, unsafeGetUserId(req.user!), wConfig, db))
+        )
+      ),
+      TE.fold(
+        (err) => T.of(res.status(err.code).json(err.message).end()),
+        () => T.of(res.status(200).end())
+      )
+    )()
+  );
+
 export const router: Router = pipe(
   createRouter(),
   restrictUnauthorisedRouter(),
   chainRouter(getAll),
   chainRouter(getOne),
+  chainRouter(addUpdateConfigHandler),
   chainRouter((r) => (context) =>
     r.post('/', (req, res, next) => HE.toRequestHandler(create(req.user!)(context))(req, res, next))
   )

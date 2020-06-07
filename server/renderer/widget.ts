@@ -23,6 +23,8 @@ export type WidgetDefinition<O extends {}, P, S extends t.Any> = {
   // TODO: Improve fallback typings
   fallback?: React.FunctionComponent<any> | React.ComponentClass<any>;
   cache?: CacheConfiguration<O>;
+  name: string;
+  description?: string;
 } & ({} extends O ? { optionsSchema?: never } : { optionsSchema: S });
 
 export default class Widget<O extends {}, P, S extends t.Any> {
@@ -50,5 +52,9 @@ export default class Widget<O extends {}, P, S extends t.Any> {
 
   getCacheConfiguration() {
     return this.definition.cache;
+  }
+
+  get name() {
+    return this.definition.name;
   }
 }

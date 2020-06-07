@@ -20,6 +20,7 @@ import type { Router } from './types';
 import { router as configurationRouter } from './configuration';
 import { router as authRouter } from './auth';
 import { router as deviceRouter } from './device';
+import { router as widgetRouter } from './widget';
 
 let imageLoadedTs = 0;
 
@@ -257,5 +258,6 @@ export const router: Router = pipe(
   ),
   nestRouter('/auth', authRouter),
   nestRouter('/configuration', configurationRouter),
-  nestRouter('/device', deviceRouter)
+  nestRouter('/device', deviceRouter),
+  nestRouter('/widget', widgetRouter)
 );

@@ -14,4 +14,7 @@ export default new Widget({
   },
   template: ({ text }: Props) => <span style={{ color: 'green' }}>{text}</span>,
   fallback: ({ text }: Props) => <span style={{ color: 'red' }}>{text}</span>,
+  name: 'Randomly Failing Hello World',
+  description:
+    'Dummy widget which randomly simulates data resolver error: with 0.5 probability will show Oh no message with red text.',
 });

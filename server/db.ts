@@ -11,15 +11,28 @@ export const getDb = (client: MongoClient) => client.db();
 
 export type User = {
   id?: string;
-  _id?: ObjectId;
+  _id: ObjectId;
   github?: GithubProfile;
 };
 
 export type Device = {
-  id: string;
+  uid: string;
   name: string;
-  _id?: ObjectId;
-  user: ObjectId;
+  _id: ObjectId;
+  user: User['_id'];
+  config: io.TypeOf<typeof DeviceConfig>;
+};
+
+export const DeviceConfig = io.type({
+  widgets: io.array(io.object),
+});
+
+type DeviceWidgetConfig = {};
+
+export type DeviceConfig = {
+  _id: ObjectId;
+  deviceId: Device['_id'];
+  widgets: DeviceWidgetConfig[];
 };
 
 type CollectionSchemaMap = {
