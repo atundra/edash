@@ -36,6 +36,7 @@ export const createServer = (db: Db) => (
               use(bodyParser.urlencoded({ extended: false })),
               use(passport.initialize()),
               use(passport.session()),
+              (router) => (config.ONE_USER_MODE ? router.use(passport.authenticate('dummy-strategy')) : router),
               use('/api', apiRouter({ config, passport, db })),
               (app) =>
                 app.all('*', (req, res, next) => {

@@ -38,6 +38,9 @@ export const LAYOUT_ROWS_COUNT = 12;
 
 export const MONGO_CONNECTION_URI = 'mongodb://localhost:27017/edash';
 
+export const ONE_USER_MODE = Boolean(process.env.ONE_USER_MODE);
+export const ONE_USER_USERID = process.env.ONE_USER_USERID !== undefined ? Number(process.env.ONE_USER_USERID) : 0;
+
 export const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY;
 
 export const PUPPETEER_ARGS = process.env.PUPPETEER_ARGS !== undefined ? process.env.PUPPETEER_ARGS.split(',') : [];

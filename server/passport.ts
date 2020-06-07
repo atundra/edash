@@ -1,5 +1,4 @@
 import { Strategy as GithubStrategy, Profile as GithubProfile } from 'passport-github';
-// import type { VerifyCallback as Oauth2VerifyCallback } from 'passport-oauth2';
 import type { Config } from './config';
 import passport, { Profile, PassportStatic } from 'passport';
 import * as TE from 'fp-ts/lib/TaskEither';
@@ -7,37 +6,45 @@ import * as R from 'fp-ts/lib/Reader';
 import * as T from 'fp-ts/lib/Task';
 import * as E from 'fp-ts/lib/Either';
 import { pipe } from 'fp-ts/lib/pipeable';
-import { MongoClient, Db, FilterQuery, MongoError, ObjectId } from 'mongodb';
+import { Db, MongoError, ObjectId } from 'mongodb';
+import { Strategy as CustomStrategy } from 'passport-custom';
 import { mapFirst } from './utils';
 import { getCollection, User } from './db';
 
 export const passportInstance = passport;
 
+const getUserForOneUserMode = (userId: number) => ({
+  _id: ObjectId.createFromTime(userId),
+});
+
 export const getPassportMiddleware = (db: Db): R.Reader<Config, PassportStatic> =>
   pipe(
     R.ask<Config>(),
     R.map(() => passport),
-    R.chain(useGithubStrategy(db)),
+    R.chain((passport) => (context) =>
+      (context.ONE_USER_MODE ? useDummyStrategy : useGithubStrategy(db))(passport)(context)
+    ),
     R.map(
       mapFirst((p) => p.serializeUser<User, string>((user: User, done) => done(null, user._id?.toString())))
     ),
-    R.map(
-      mapFirst((p) =>
-        p.deserializeUser<User, string>((id, done) => {
-          const task = pipe(
-            db,
-            findUser(id),
-            TE.fold(
-              (err) => T.of(done(err)),
-              (user) => T.of(done(null, user))
-            )
-          );
-
-          return task();
-        })
-      )
+    R.chainFirst((p) => ({ ONE_USER_MODE, ONE_USER_USERID }) =>
+      ONE_USER_MODE
+        ? p.deserializeUser<User, string>((id, done) => done(null, getUserForOneUserMode(ONE_USER_USERID)))
+        : p.deserializeUser<User, string>((id, done) =>
+            pipe(
+              db,
+              findUser(id),
+              TE.fold(
+                (err) => T.of(done(err)),
+                (user) => T.of(done(null, user))
+              )
+            )()
+          )
     )
   );
+
+const useDummyStrategy = (p: PassportStatic): R.Reader<Config, PassportStatic> => ({ ONE_USER_USERID }) =>
+  p.use('dummy-strategy', new CustomStrategy((req, done) => done(null, getUserForOneUserMode(ONE_USER_USERID))));
 
 const useGithubStrategy = (db: Db) => (p: PassportStatic): R.Reader<Config, PassportStatic> => ({
   GITHUB_CLIENT_ID,
