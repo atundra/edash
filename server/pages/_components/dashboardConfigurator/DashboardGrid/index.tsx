@@ -1,7 +1,5 @@
 import React, { useCallback, useState } from 'react';
 import GridLayout, { Layout } from 'react-grid-layout';
-import 'react-grid-layout/css/styles.css';
-import 'react-resizable/css/styles.css';
 
 import DashboardItem from '../DashboardItem';
 
