@@ -1,0 +1,23 @@
+.root {
+  height: 100%;
+  width: 100%;
+  display: flex;
+}
+
+.widgetList {
+  width: 20%;
+}
+
+.dashboardWrapper {
+  width: 80%;
+}
+
+.dashboard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.widgetsOptionsEditor {
+  min-height: 200px;
+}

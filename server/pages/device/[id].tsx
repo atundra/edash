@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
 import { useSWRAndRouterWithAuthRedirect } from '../../hooks/swr';
+import App from '../_components/dashboardConfigurator/App';
 
 type Device = { id: string; _id: string; name: string } | null;
 
@@ -18,6 +19,7 @@ export default () => {
     <>
       <h1>Device {data.name}</h1>
       <p>Device id: {data.id}</p>
+      <App />
     </>
   );
 };
