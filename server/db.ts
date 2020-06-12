@@ -23,8 +23,20 @@ export type Device = {
   config: io.TypeOf<typeof DeviceConfig>;
 };
 
+const WidgetPosition = io.type({
+  column: io.Int,
+  row: io.Int,
+  colspan: io.Int,
+  rowspan: io.Int,
+});
+
+const Widget = io.type({
+  id: io.string,
+  position: WidgetPosition,
+});
+
 export const DeviceConfig = io.type({
-  widgets: io.array(io.object),
+  widgets: io.array(Widget),
 });
 
 type DeviceWidgetConfig = {};

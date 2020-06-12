@@ -2,7 +2,7 @@ import useSWR from 'swr';
 import type { fetcherFn, responseInterface, keyInterface, ConfigInterface } from 'swr/dist/types';
 import { useRouter, NextRouter } from 'next/router';
 
-type UseSWRAndRouterWithAuthRedirectReturn<Data = any, Error = any> = responseInterface<Data, Error> & {
+export type UseSWRAndRouterWithAuthRedirectReturn<Data = any, Error = any> = responseInterface<Data, Error> & {
   router: NextRouter;
 };
 
