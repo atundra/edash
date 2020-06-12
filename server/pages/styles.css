@@ -4,6 +4,10 @@ body {
   color: #333;
 }
 
+.Toastify__toast--success {
+  background-color: #00c781 !important;
+}
+
 /* @import url('https://fonts.googleapis.com/css?family=Sulphur+Point&display=swap');
 
 html,

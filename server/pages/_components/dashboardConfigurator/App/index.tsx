@@ -25,6 +25,9 @@ import * as IOE from 'fp-ts/lib/IOEither';
 import { pipe } from 'fp-ts/lib/pipeable';
 import { useQueryParam, RouterQueryParam } from '../../../_hooks/useQueryParam';
 import { toast } from 'react-toastify';
+import { Box, Header, Grid, Footer, Button, Text, Heading } from 'grommet';
+import Link from 'next/link';
+import { LinkPrevious } from 'grommet-icons';
 
 type WidgetPosition = {
   column: number;
@@ -158,13 +161,8 @@ const swrAndRouterDataToEither = <D, E>(d: UseSWRAndRouterWithAuthRedirectReturn
 
 const App = () => {
   const [state, setState] = useState<LayoutState>({ layout: [], widgets: {} });
-
   const router = useRouter();
-
   const id = useQueryParam('id');
-
-  useEffect(getLoadCurrentWidgetOptionsEffect(id, setState), [router.query.id, setState]);
-
   const supportedWidgets = pipe(
     useSWRAndRouterWithAuthRedirect<SupportedWidget[], Error>('/api/widget/supported'),
     swrAndRouterDataToEither
@@ -173,29 +171,40 @@ const App = () => {
   const handleLayoutChange = useCallback((layout: Layout[], widgets: Record<string, string>) => {
     setState({ layout, widgets });
   }, []);
-
   const onSaveCurrentConfig = getSaveConfig(id, layoutTowidgetOptions(state.layout, state.widgets));
 
-  return (
-    <div>
-      <div className={styles.root}>
-        <div className={styles.widgetList}>
-          <WidgetList data={supportedWidgets} />
-        </div>
-        <div className={styles.dashboardWrapper}>
-          <div className={styles.dashboard}>
-            <DashboardGrid layout={state.layout} widgets={state.widgets} onLayoutChange={handleLayoutChange} />
-          </div>
-          <pre className={styles.widgetsOptionsEditor}>
-            {JSON.stringify(layoutTowidgetOptions(state.layout, state.widgets), null, 2)}
-          </pre>
-        </div>
-      </div>
+  useEffect(getLoadCurrentWidgetOptionsEffect(id, setState), [router.query.id, setState]);
 
-      <footer>
-        <button onClick={onSaveCurrentConfig}>Save</button>
-      </footer>
-    </div>
+  return (
+    <Grid
+      rows={['xsmall', 'auto']}
+      columns={['small', 'auto', 'medium']}
+      fill="vertical"
+      areas={[
+        { name: 'header', start: [0, 0], end: [2, 0] },
+        { name: 'widgets', start: [0, 1], end: [0, 1] },
+        { name: 'canvas', start: [1, 1], end: [1, 1] },
+        { name: 'settings', start: [2, 1], end: [2, 1] },
+      ]}
+    >
+      <Header pad="small" gridArea="header" background="brand">
+        <Link href="/device/[id]" as={`/device/${router.query.id}`}>
+          <Button icon={<LinkPrevious />} label="Exit" />
+        </Link>
+        <Heading size="small">Configure dat dashboard mm</Heading>
+        <Button primary onClick={onSaveCurrentConfig} label="Save" />
+      </Header>
+      <Box gridArea="widgets" background="light-3">
+        <WidgetList data={supportedWidgets} />
+      </Box>
+      <Box gridArea="canvas" background="light-1" justify="center" align="center">
+        <DashboardGrid layout={state.layout} widgets={state.widgets} onLayoutChange={handleLayoutChange} />
+        {/* {JSON.stringify(layoutTowidgetOptions(state.layout, state.widgets), null, 2)} */}
+      </Box>
+      <Box gridArea="settings" background="light-3">
+        Settings
+      </Box>
+    </Grid>
   );
 };
 
