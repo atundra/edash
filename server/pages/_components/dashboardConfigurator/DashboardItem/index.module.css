@@ -1,14 +1,14 @@
 .root {
-    text-align: center;
-    height: 100%;
-    border: 1px black solid;
-    user-select: none;
-    position: relative;
+  text-align: center;
+  height: 100%;
+  border: 1px black solid;
+  user-select: none;
+  position: relative;
 }
 
 .cross {
-    position: absolute;
-    right: 5px;
-    display: inline-block;
-    cursor: pointer;
+  position: absolute;
+  right: 5px;
+  display: inline-block;
+  cursor: pointer;
 }
