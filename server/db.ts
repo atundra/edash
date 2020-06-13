@@ -2,6 +2,8 @@ import { MongoClient, Db, ObjectId, MongoError } from 'mongodb';
 import { TaskEither, taskify } from 'fp-ts/lib/TaskEither';
 import { Profile as GithubProfile } from 'passport-github';
 import * as io from 'io-ts';
+import widgetRegistry from './renderer/widgets/registry';
+import { WidgetPosition, WidgetConfig } from './renderer/types';
 
 export const createMongoClient: (connectionUri: string) => TaskEither<MongoError, MongoClient> = taskify(
   MongoClient.connect
@@ -20,18 +22,13 @@ export type Device = {
   name: string;
   _id: ObjectId;
   user: User['_id'];
-  config: io.TypeOf<typeof DeviceConfig>;
+  config: {
+    widgets: WidgetConfig[];
+  };
 };
 
-const WidgetPosition = io.type({
-  column: io.Int,
-  row: io.Int,
-  colspan: io.Int,
-  rowspan: io.Int,
-});
-
 const Widget = io.type({
-  id: io.string,
+  id: io.keyof(widgetRegistry),
   position: WidgetPosition,
 });
 

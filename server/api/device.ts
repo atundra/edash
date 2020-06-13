@@ -174,7 +174,8 @@ const addUpdateConfigHandler = (r: ExpressRouter): Router => ({ db }) =>
 
           E.mapLeft(validationErrorsToHandlerError),
           TE.fromEither,
-          TE.chain((wConfig) => updateConfig(deviceId, unsafeGetUserId(req.user!), wConfig, db))
+          // @TODO: fix casting to any
+          TE.chain((wConfig) => updateConfig(deviceId, unsafeGetUserId(req.user!), wConfig as any, db))
         )
       ),
       TE.fold(

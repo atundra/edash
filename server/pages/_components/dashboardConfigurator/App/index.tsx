@@ -28,13 +28,7 @@ import { toast } from 'react-toastify';
 import { Box, Header, Grid, Footer, Button, Text, Heading } from 'grommet';
 import Link from 'next/link';
 import { LinkPrevious } from 'grommet-icons';
-
-type WidgetPosition = {
-  column: number;
-  row: number;
-  colspan: number;
-  rowspan: number;
-};
+import { WidgetPosition } from '../../../../renderer/types';
 
 type WidgetOptions = {
   id: string;
@@ -50,10 +44,10 @@ const widgetOptionsToLayout = (widgetOptions: WidgetOptions[]) => {
     widgets[i] = id;
 
     return {
-      x: position.column - 1,
-      y: position.row - 1,
-      w: position.colspan,
-      h: position.rowspan,
+      x: position.x - 1,
+      y: position.y - 1,
+      w: position.width,
+      h: position.height,
       i,
     };
   });
@@ -65,10 +59,10 @@ const layoutTowidgetOptions = (layout: Layout[], widgets: Record<string, string>
   layout.map((item) => ({
     id: widgets[item.i],
     position: {
-      column: item.x + 1,
-      row: item.y + 1,
-      colspan: item.w,
-      rowspan: item.h,
+      x: item.x + 1,
+      y: item.y + 1,
+      width: item.w,
+      height: item.h,
     },
   }));
 
@@ -81,6 +75,12 @@ const sendConfig = (deviceId: string, widgets: WidgetOptions[]) =>
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ widgets }),
+      }).then((res) => {
+        if (!res.ok) {
+          throw new Error(res.statusText);
+        }
+
+        return res.text();
       }),
     E.toError
   );
