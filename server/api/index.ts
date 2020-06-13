@@ -20,8 +20,8 @@ import type { Router } from './types';
 import { router as configurationRouter } from './configuration';
 import { router as authRouter } from './auth';
 import { router as deviceRouter } from './device';
+import { router as screenRouter } from './screen';
 import { router as widgetRouter } from './widget';
-import { getCollection } from '../db';
 
 let imageLoadedTs = 0;
 
@@ -261,53 +261,5 @@ export const router: Router = pipe(
   nestRouter('/configuration', configurationRouter),
   nestRouter('/device', deviceRouter),
   nestRouter('/widget', widgetRouter),
-  chainRouter((r) => ({ db }) =>
-    r.get('/screen/:id', async (req, res, next) => {
-      const uid = req.params.id;
-      const device = await pipe(db, getCollection('devices'), (collection) => collection.findOne({ uid }));
-      if (!device) {
-        return res.status(404).end();
-      }
-
-      const renderOptions = {
-        ...device.config,
-        layout: {
-          width: 640,
-          height: 384,
-          columns: LAYOUT_COLUMNS_COUNT,
-          rows: LAYOUT_ROWS_COUNT,
-        },
-      };
-
-      let pageContent;
-      try {
-        pageContent = await widgetRenderer.render(renderOptions);
-      } catch (er) {
-        console.log('error scrrrr', er);
-      }
-
-      if (!pageContent) {
-        return res.send(500).send('pizdos');
-      }
-
-      const screenshotTask = getContentScreenshot(pageContent, {
-        width: renderOptions.layout.width,
-        height: renderOptions.layout.height,
-      });
-
-      const convertBufferTask = taskEither.tryCatchK(
-        (buffer: Buffer) => convertBuffer(buffer, ['PNG:-', '-dither', 'Floyd-Steinberg', 'MONO:-']),
-        either.toError
-      );
-
-      const task = taskEither.chain(convertBufferTask)(screenshotTask);
-
-      return task().then(
-        either.fold(
-          (err) => res.status(500).send(err.toString()),
-          (buffer) => res.send(buffer)
-        )
-      );
-    })
-  )
+  nestRouter('/screen', screenRouter(widgetRenderer))
 );

@@ -16,7 +16,7 @@ export type LayoutProperties = {
   columns: number;
 };
 
-type RenderOptions = {
+export type RenderOptions = {
   widgets: WidgetConfig[];
   layout: LayoutProperties;
 };
