@@ -3,7 +3,7 @@ import express, { Application } from 'express';
 import { ApplicationRequestHandler } from 'express-serve-static-core';
 import session from 'express-session';
 import bodyParser from 'body-parser';
-import { Db } from 'mongodb';
+import { Db, MongoError } from 'mongodb';
 import NextServer from 'next/dist/next-server/server/next-server';
 import * as E from 'fp-ts/lib/Either';
 import * as TE from 'fp-ts/lib/TaskEither';
@@ -20,7 +20,7 @@ const use: ApplicationRequestHandler<(app: Application) => Application> = <A ext
 
 export const createServer = (db: Db) => (
   nextServer: NextServer
-): RTE.ReaderTaskEither<Config, NodeJS.ErrnoException, Application> =>
+): RTE.ReaderTaskEither<Config, NodeJS.ErrnoException | MongoError, Application> =>
   pipe(
     R.ask<Config>(),
     R.chain(() => getPassportMiddleware(db)),
