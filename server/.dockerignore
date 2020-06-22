@@ -1,0 +1,10 @@
+.DS_Store
+token.json
+node_modules/
+.env
+.example.env
+widgetdatacache/
+.next/
+configuration/
+image_cache/*
+npm-debug.log
