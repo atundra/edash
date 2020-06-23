@@ -16,7 +16,10 @@ RUN  apt-get update \
   && chmod +x /usr/sbin/wait-for-it.sh
 
 COPY package.json yarn.lock /
-RUN yarn install --production
+
+# TODO: Typescript compile for production env
+# RUN yarn install --production
+RUN yarn install
 
 COPY . /
 EXPOSE 8000
