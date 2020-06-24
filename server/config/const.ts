@@ -11,7 +11,7 @@ export const CLUSTER_POINTS_MAX_DISTANCE_M = 1000 * 100;
 
 export const ENABLE_GOOGLE_API = Boolean(process.env.ENABLE_GOOGLE_API);
 
-export const EXPRESS_SESSION_SECRET = 'fatproductspine';
+export const EXPRESS_SESSION_SECRET = 'fatproductspiner';
 
 export const ENV = parseEnv(process.env.ENV);
 
