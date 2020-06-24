@@ -20,3 +20,4 @@ jobs:
           username: ${{ secrets.ATNDR_DOCKER_USERNAME }}
           password: ${{ secrets.ATNDR_DOCKER_PASSWORD }}
           tag_with_ref: true
+          path: server
