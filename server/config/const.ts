@@ -1,5 +1,6 @@
 import { config } from 'dotenv';
 import { parseEnv } from './env';
+
 config();
 
 export const PORT = process.env.PORT !== undefined ? parseInt(process.env.PORT, 10) : 8000;
