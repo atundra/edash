@@ -23,4 +23,6 @@ RUN yarn install
 
 COPY . /
 EXPOSE 8000
+ENV ENV production
+RUN next build
 CMD [ "npm", "run", "start" ]
