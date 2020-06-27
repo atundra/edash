@@ -32,7 +32,9 @@ RT.run(
   pipe(
     RTE.ask<Config>(),
 
-    RTE.chainFirst(() => RTE.fromIOEither(IOE.rightIO(log('Start connecting to db')))),
+    RTE.chainFirst(({ MONGO_CONNECTION_URI }) =>
+      RTE.fromIOEither(IOE.rightIO(log(`Start connecting to db, mongouri: ${MONGO_CONNECTION_URI}`)))
+    ),
     RTE.chain(({ MONGO_CONNECTION_URI }) => RTE.fromTaskEither(createMongoClient(MONGO_CONNECTION_URI))),
     RTE.chainFirst(() => RTE.fromIOEither(IOE.rightIO(log('Connected to db')))),
     RTE.map(getDb),
