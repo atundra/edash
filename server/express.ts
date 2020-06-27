@@ -1,5 +1,5 @@
 import { parse } from 'url';
-import express, { Application } from 'express';
+import express, { Application, RequestHandler } from 'express';
 import { ApplicationRequestHandler } from 'express-serve-static-core';
 import session from 'express-session';
 import bodyParser from 'body-parser';
@@ -17,6 +17,8 @@ import type { Config } from './config';
 const use: ApplicationRequestHandler<(app: Application) => Application> = <A extends any[]>(...args: A) => (
   app: Application
 ) => app.use(...args);
+
+const pingHandler: RequestHandler = (req, res, next) => res.sendStatus(200);
 
 export const createServer = (db: Db) => (
   nextServer: NextServer
@@ -38,6 +40,7 @@ export const createServer = (db: Db) => (
               use(passport.session()),
               (router) => (config.ONE_USER_MODE ? router.use(passport.authenticate('dummy-strategy')) : router),
               use('/api', apiRouter({ config, passport, db })),
+              (app) => app.get('/ping', pingHandler),
               (app) =>
                 app.all('*', (req, res, next) => {
                   const parsed = parse(req.url, true);
