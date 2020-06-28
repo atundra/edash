@@ -24,5 +24,5 @@ RUN yarn install
 COPY . /
 EXPOSE 8000
 ENV ENV production
-RUN npx next build
+RUN npm run build
 CMD [ "npm", "run", "start" ]

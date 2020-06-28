@@ -6,6 +6,7 @@
   "scripts": {
     "start": "ts-node -P tsconfig.server.json index.ts",
     "dev": "ts-node-dev onlineWidgetServer.ts",
+    "build": "next build",
     "typecheck": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
