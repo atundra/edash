@@ -1,23 +1,12 @@
 #pragma once
 
+#include "Types.h"
+
 #include <Esp.h>
 #include <Adafruit_GFX.h>
 
 namespace Dashboard_NS
 {
-
-typedef enum
-{
-    Monochrome,
-    ThreeColor,
-    Grayscale
-} ColorModes;
-
-struct Resolution
-{
-    int width;
-    int height;
-};
 
 template <typename DisplayDeviceClass>
 class Display

@@ -1,4 +1,5 @@
 #define ENABLE_GxEPD2_GFX 0
+#include "Types.h"
 #include "Display.h"
 #include "connectivity.h"
 #include <HTTPClient.h>
@@ -47,8 +48,6 @@ String httpGet(const String &url)
 
 namespace SetupRoutine
 {
-  typedef uint8_t err_t;
-
   class Device
   {
   private:
