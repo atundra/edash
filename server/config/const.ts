@@ -15,10 +15,9 @@ export const EXPRESS_SESSION_SECRET = 'fatproductspiner';
 
 export const ENV = parseEnv(process.env.ENV);
 
+const DEFAULT_GITHUB_CALLBACK_URL = `http://localhost:${PORT}/api/auth/github/callback`;
 export const GITHUB_CALLBACK_URL =
-  process.env.GITHUB_CALLBACK_URL !== undefined
-    ? process.env.GITHUB_CALLBACK_URL
-    : `http://localhost:${PORT}/api/auth/github/callback`;
+  process.env.GITHUB_CALLBACK_URL !== undefined ? process.env.GITHUB_CALLBACK_URL : DEFAULT_GITHUB_CALLBACK_URL;
 export const GITHUB_CLIENT_ID = String(process.env.GITHUB_CLIENT_ID);
 export const GITHUB_CLIENT_SECRET = String(process.env.GITHUB_CLIENT_SECRET);
 
