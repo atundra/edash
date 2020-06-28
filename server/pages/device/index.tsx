@@ -2,28 +2,30 @@ import { useSWRAndRouterWithAuthRedirect } from '../../ui/hooks/swr';
 import Link from 'next/link';
 import { ObjectId } from 'mongodb';
 import { Device } from '../../db';
+import { Header, Button, Heading, Main, Paragraph, Text, List, Anchor } from 'grommet';
+import { Add } from 'grommet-icons';
 
 type Props = { devices?: Device[] };
 
 const DevicesList = ({ devices }: Props) => {
   if (!devices) {
-    return <p>Loading</p>;
+    return <Paragraph>Loading</Paragraph>;
   }
 
   if (devices.length === 0) {
-    return <p>You havn't added devices yet.</p>;
+    return <Paragraph>You havn't added devices yet.</Paragraph>;
   }
 
   return (
-    <ul>
-      {devices.map((device) => (
-        <li key={device._id + device.name}>
-          <Link href="/device/[id]" as={`/device/${device._id}`}>
-            <a>{device.name}</a>
-          </Link>
-        </li>
-      ))}
-    </ul>
+    <List
+      data={devices}
+      primaryKey={(device) => (
+        <Link key={device._id} href="/device/[id]" as={`/device/${device._id}`}>
+          <Anchor>{device.name}</Anchor>
+        </Link>
+      )}
+      secondaryKey="uid"
+    />
   );
 };
 
@@ -32,13 +34,17 @@ export default () => {
 
   return (
     <>
-      <h1>My Devices</h1>
-      <DevicesList devices={data} />
-      <p>
-        <Link href="/device/create">
-          <a>Create a new device</a>
-        </Link>
-      </p>
+      <Header pad={{ horizontal: 'xlarge' }} margin={{ top: 'small' }}>
+        <Heading>My Devices</Heading>
+      </Header>
+      <Main pad={{ horizontal: 'xlarge' }}>
+        <DevicesList devices={data} />
+        <Paragraph>
+          <Link href="/device/create">
+            <Button primary icon={<Add />} label="Create a new device" />
+          </Link>
+        </Paragraph>
+      </Main>
     </>
   );
 };

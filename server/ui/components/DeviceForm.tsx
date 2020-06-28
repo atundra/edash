@@ -1,4 +1,5 @@
 import { Form, Field } from 'react-final-form';
+import { Button, FormField, TextInput } from 'grommet';
 
 type Values = { name: string; uid: string };
 
@@ -28,13 +29,9 @@ const InputField = ({ name, label, validate, placeholder }: InputFieldProps) => 
   <Field name={name} validate={validate}>
     {({ input, meta }) => (
       <div>
-        <div>
-          <label htmlFor={name}>{label}</label>
-        </div>
-        <div>
-          <input {...input} id={name} type="text" placeholder={placeholder} />
-        </div>
-        <div>{meta.error && meta.touched && <span>{meta.error}</span>}</div>
+        <FormField htmlFor={name} label={label} error={meta.touched && meta.error}>
+          <TextInput {...input} id={name} placeholder={placeholder} />
+        </FormField>
       </div>
     )}
   </Field>
@@ -46,15 +43,11 @@ export const DeviceForm = ({ onSubmit }: Props) => (
     validate={validate}
     render={({ handleSubmit }) => (
       <form onSubmit={handleSubmit}>
-        <p>
-          <InputField name="name" label="Device Name" validate={required} placeholder="Kitchen edash" />
-        </p>
+        <InputField name="name" label="Device Name" validate={required} placeholder="Kitchen edash" />
 
-        <p>
-          <InputField name="uid" label="Device UID" validate={required} placeholder="asdf-qwer-7832" />
-        </p>
+        <InputField name="uid" label="Device UID" validate={required} placeholder="asdf-qwer-7832" />
 
-        <button type="submit">Submit</button>
+        <Button type="submit" primary label="Submit" />
       </form>
     )}
   />
