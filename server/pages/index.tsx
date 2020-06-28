@@ -9,8 +9,8 @@ const Index = () => {
           <div className={styles.text}>
             <h1 className={styles.header}>eDash</h1>
             <p>
-              <Link href="/dashboard">
-                <a>My dashboard</a>
+              <Link href="/device">
+                <a>My devices</a>
               </Link>
             </p>
           </div>

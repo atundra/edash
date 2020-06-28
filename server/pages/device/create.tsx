@@ -7,16 +7,16 @@ import { LinkPrevious } from 'grommet-icons';
 export default () => {
   const router = useRouter();
   return (
-    <>
-      <Box pad={{ horizontal: 'xlarge' }} margin={{ top: 'large' }} direction="row">
+    <Box width={{ max: 'xlarge' }} margin="auto">
+      <Box margin={{ top: 'large' }} direction="row">
         <Link href="/device">
           <Button icon={<LinkPrevious />} label="My devices" />
         </Link>
       </Box>
-      <Header pad={{ horizontal: 'xlarge' }} margin={{ top: 'small' }}>
+      <Header margin={{ top: 'small' }}>
         <Heading>Create a new device</Heading>
       </Header>
-      <Main pad={{ horizontal: 'xlarge' }}>
+      <Main>
         <DeviceForm
           onSubmit={(data) =>
             fetch('/api/device', {
@@ -33,6 +33,6 @@ export default () => {
           }
         />
       </Main>
-    </>
+    </Box>
   );
 };

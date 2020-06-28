@@ -2,8 +2,8 @@ import { useSWRAndRouterWithAuthRedirect } from '../../ui/hooks/swr';
 import Link from 'next/link';
 import { ObjectId } from 'mongodb';
 import { Device } from '../../db';
-import { Header, Button, Heading, Main, Paragraph, Text, List, Anchor } from 'grommet';
-import { Add } from 'grommet-icons';
+import { Header, Button, Heading, Main, Paragraph, Box, List, Anchor } from 'grommet';
+import { Add, Home } from 'grommet-icons';
 
 type Props = { devices?: Device[] };
 
@@ -33,11 +33,16 @@ export default () => {
   const { data } = useSWRAndRouterWithAuthRedirect('/api/device');
 
   return (
-    <>
-      <Header pad={{ horizontal: 'xlarge' }} margin={{ top: 'small' }}>
+    <Box width={{ max: 'xlarge' }} margin="auto">
+      <Box margin={{ top: 'large' }} direction="row">
+        <Link href="/">
+          <Button icon={<Home />} label="" />
+        </Link>
+      </Box>
+      <Header margin={{ top: 'small' }}>
         <Heading>My Devices</Heading>
       </Header>
-      <Main pad={{ horizontal: 'xlarge' }}>
+      <Main>
         <DevicesList devices={data} />
         <Paragraph>
           <Link href="/device/create">
@@ -45,6 +50,6 @@ export default () => {
           </Link>
         </Paragraph>
       </Main>
-    </>
+    </Box>
   );
 };

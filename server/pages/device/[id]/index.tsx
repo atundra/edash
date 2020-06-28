@@ -19,16 +19,16 @@ export default () => {
   if (data === null) return <div>Device with id {id} not found</div>;
 
   return (
-    <>
-      <Box pad={{ horizontal: 'xlarge' }} margin={{ top: 'large' }} direction="row">
+    <Box width={{ max: 'xlarge' }} margin="auto">
+      <Box margin={{ top: 'large' }} direction="row">
         <Link href="/device">
           <Button icon={<LinkPrevious />} label="My devices" />
         </Link>
       </Box>
-      <Header pad={{ horizontal: 'xlarge' }} margin={{ top: 'small' }}>
+      <Header margin={{ top: 'small' }}>
         <Heading>Device: {data.name}</Heading>
       </Header>
-      <Main pad={{ horizontal: 'xlarge' }}>
+      <Main>
         <Paragraph size="large">Device uid: {data.uid}</Paragraph>
         <Paragraph>
           <Link href="/device/[id]/configure" as={`/device/${data._id}/configure`}>
@@ -36,6 +36,6 @@ export default () => {
           </Link>
         </Paragraph>
       </Main>
-    </>
+    </Box>
   );
 };
