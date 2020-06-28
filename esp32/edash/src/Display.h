@@ -29,7 +29,7 @@ private:
 
 public:
     Display(DisplayDeviceClass& new_displayDevice) : displayDevice(new_displayDevice) {}
-
+    Display();
 public:
     Resolution GetResolution() const
     {
