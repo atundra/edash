@@ -1,5 +1,5 @@
 #define ENABLE_GxEPD2_GFX 0
-#include "device.h"
+#include "Display.h"
 #include "connectivity.h"
 #include <HTTPClient.h>
 

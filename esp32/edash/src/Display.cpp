@@ -1,4 +1,4 @@
-#include "device.h"
+#include "Display.h"
 
 #include "GxEPD2_EPD.h"
 #include <Fonts/FreeSansBold18pt7b.h>
