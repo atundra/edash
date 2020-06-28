@@ -11,7 +11,7 @@
 
 GxEPD2_3C<GxEPD2_750c, GxEPD2_750c::HEIGHT> display(GxEPD2_750c(/*CS=5*/ SS, /*DC=*/17, /*RST=*/16, /*BUSY=*/4));
 
-Dashboard_NS::Dashboard<GxEPD2_3C<GxEPD2_750c, GxEPD2_750c::HEIGHT>> dashboard(display);
+Dashboard_NS::Display<GxEPD2_3C<GxEPD2_750c, GxEPD2_750c::HEIGHT>> dashboard(display);
 
 // TODO move to some class or whatever and add sending parameters
 String httpGet(const String &url)

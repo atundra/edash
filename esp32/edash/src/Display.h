@@ -20,7 +20,7 @@ struct Resolution
 };
 
 template <typename DisplayDeviceClass>
-class Dashboard
+class Display
 {
 private:
     DisplayDeviceClass& displayDevice;
@@ -28,7 +28,7 @@ private:
     void BetterDrawBitmap(const uint8_t bitmap[]) const;
 
 public:
-    Dashboard(DisplayDeviceClass& new_displayDevice) : displayDevice(new_displayDevice) {}
+    Display(DisplayDeviceClass& new_displayDevice) : displayDevice(new_displayDevice) {}
 
 public:
     Resolution GetResolution() const

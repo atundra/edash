@@ -1,4 +1,4 @@
-#include "Display.h"
+ #include "Display.h"
 
 #include "GxEPD2_EPD.h"
 #include <Fonts/FreeSansBold18pt7b.h>
@@ -6,19 +6,19 @@
 #include <WiFiUdp.h>
 
 template <typename T>
-void Dashboard_NS::Dashboard<T>::DrawBitmap(int16_t x, int16_t y, const uint8_t bitmap[], int16_t w, int16_t h, uint16_t color) const
+void Dashboard_NS::Display<T>::DrawBitmap(int16_t x, int16_t y, const uint8_t bitmap[], int16_t w, int16_t h, uint16_t color) const
 {
     displayDevice.drawBitmap(x, y, bitmap, w, h, color);
 }
 
 template <typename T>
-void Dashboard_NS::Dashboard<T>::BetterDrawBitmap(const uint8_t bitmap[]) const
+void Dashboard_NS::Display<T>::BetterDrawBitmap(const uint8_t bitmap[]) const
 {
     displayDevice.drawBitmap(0, 0, bitmap, displayDevice.epd2.WIDTH, displayDevice.epd2.HEIGHT, GxEPD_BLACK);
 }
 
 template <typename T>
-void Dashboard_NS::Dashboard<T>::DrawPayload(const String &payload) const
+void Dashboard_NS::Display<T>::DrawPayload(const String &payload) const
 {
     WiFiUDP ntpUDP;
     NTPClient timeClient(ntpUDP);

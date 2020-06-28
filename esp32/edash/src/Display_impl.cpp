@@ -4,4 +4,4 @@
 #include "Display.cpp" 
 #include <GxEPD2_3C.h>
 
-template class Dashboard_NS::Dashboard<GxEPD2_3C<GxEPD2_750c, GxEPD2_750c::HEIGHT>>;
+template class Dashboard_NS::Display<GxEPD2_3C<GxEPD2_750c, GxEPD2_750c::HEIGHT>>;
