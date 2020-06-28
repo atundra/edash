@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useSWRAndRouterWithAuthRedirect } from '../../_hooks/swr';
+import { useSWRAndRouterWithAuthRedirect } from '../../../ui/hooks/swr';
 import Link from 'next/link';
 import { Device as DbDevice } from '../../../db';
 

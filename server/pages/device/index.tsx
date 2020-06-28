@@ -1,4 +1,4 @@
-import { useSWRAndRouterWithAuthRedirect } from '../_hooks/swr';
+import { useSWRAndRouterWithAuthRedirect } from '../../ui/hooks/swr';
 import Link from 'next/link';
 import { ObjectId } from 'mongodb';
 import { Device } from '../../db';

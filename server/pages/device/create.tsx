@@ -1,4 +1,4 @@
-import { DeviceForm } from '../_components/DeviceForm';
+import { DeviceForm } from '../../ui/components/DeviceForm';
 import { useRouter } from 'next/router';
 
 export default () => {

@@ -9,7 +9,7 @@ import {
   useSWRAndRouterWithAuthRedirect,
   getHandleAuthFetcher,
   UseSWRAndRouterWithAuthRedirectReturn,
-} from '../../../_hooks/swr';
+} from '../../../hooks/swr';
 import { SupportedWidget } from '../../../../api/widget';
 import { DashboardConfig } from '../../../../api/device';
 import { useRouter } from 'next/router';
@@ -23,7 +23,7 @@ import * as F from 'fp-ts/lib/function';
 import * as IO from 'fp-ts/lib/IO';
 import * as IOE from 'fp-ts/lib/IOEither';
 import { pipe } from 'fp-ts/lib/pipeable';
-import { useQueryParam, RouterQueryParam } from '../../../_hooks/useQueryParam';
+import { useQueryParam, RouterQueryParam } from '../../../hooks/useQueryParam';
 import { toast } from 'react-toastify';
 import { Box, Header, Grid, Footer, Button, Text, Heading } from 'grommet';
 import Link from 'next/link';
