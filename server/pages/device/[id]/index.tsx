@@ -19,7 +19,7 @@ export default () => {
   if (data === null) return <div>Device with id {id} not found</div>;
 
   return (
-    <Box width={{ max: 'xlarge' }} margin="auto">
+    <Box width={{ max: 'xlarge' }} margin="auto" pad={{ horizontal: 'medium' }}>
       <Box margin={{ top: 'large' }} direction="row">
         <Link href="/device">
           <Button icon={<LinkPrevious />} label="My devices" />

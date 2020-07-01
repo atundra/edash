@@ -33,7 +33,7 @@ export default () => {
   const { data } = useSWRAndRouterWithAuthRedirect('/api/device');
 
   return (
-    <Box width={{ max: 'xlarge' }} margin="auto">
+    <Box width={{ max: 'xlarge' }} margin="auto" pad={{ horizontal: 'medium' }}>
       <Box margin={{ top: 'large' }} direction="row">
         <Link href="/">
           <Button icon={<Home />} label="" />

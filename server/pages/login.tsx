@@ -8,7 +8,7 @@ export default () => {
   const nextPage = router.query.next ? `?next=${router.query.next}` : '';
 
   return (
-    <Box width={{ max: 'xlarge' }} margin="auto">
+    <Box width={{ max: 'xlarge' }} margin="auto" pad={{ horizontal: 'medium' }}>
       <Box margin={{ top: 'large' }} direction="row">
         <Link href="/">
           <Button icon={<Home />} label="" />
