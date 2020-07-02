@@ -26,7 +26,7 @@ const Index = () => {
         <MovingDots />
       </Stack>
       <Box fill={true} width={{ max: 'xlarge' }} margin="auto" pad={{ horizontal: 'medium' }}>
-        <Heading>More awesome content soon</Heading>
+        <Heading>More awesome content coming soon</Heading>
         <Paragraph>Stay tuned epta</Paragraph>
       </Box>
     </Box>
