@@ -69,7 +69,10 @@ export const router = (renderer: Renderer) =>
                 width: 640,
                 height: 384,
               }),
-              TE.mapLeft((err) => new HandlerError(500, 'Error while capturing screen'))
+              TE.mapLeft((err) => {
+                console.error(err);
+                return new HandlerError(500, 'Error while capturing screen');
+              })
             )
           ),
           TE.chain(
