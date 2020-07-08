@@ -11,7 +11,7 @@ const Index = () => {
         <Header>
           <Heading>edash</Heading>
           <Link href="/device">
-            <Button primary label="My Devices" icon={<Dashboard />} />
+            <Button primary label="My Device" icon={<Dashboard />} />
           </Link>
         </Header>
       </Box>
