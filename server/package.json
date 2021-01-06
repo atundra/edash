@@ -35,7 +35,7 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "body-parser": "^1.19.0",
     "cache-manager": "^3.3.0",
     "cache-manager-fs-hash": "0.0.8",
