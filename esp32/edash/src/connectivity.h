@@ -32,7 +32,7 @@ extern String Router_Pass;
 // Must be placed before #include <ESP_WiFiManager.h>
 #define USE_AVAILABLE_PAGES false
 
-#include <ESP_WiFiManager.h> //https://github.com/khoih-prog/ESP_WiFiManager
+#include <ESP_WiFiManager.hpp> //https://github.com/khoih-prog/ESP_WiFiManager
 
 // These defines must be put before #include <ESP_DoubleResetDetector.h>
 // to select where to store DoubleResetDetector's variable.

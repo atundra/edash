@@ -9,6 +9,13 @@
 // #include <GxEPD2_BW.h>
 #include <GxEPD2_3C.h>
 
+/*
+ * https://github.com/khoih-prog/ESP_WiFiManager
+ * 
+ * Should be included only once: https://github.com/khoih-prog/ESP_WiFiManager#HOWTO-Fix-Multiple-Definitions-Linker-Error
+ */
+#include <ESP_WiFiManager.h>
+
 GxEPD2_3C<GxEPD2_750c, GxEPD2_750c::HEIGHT> display(GxEPD2_750c(/*CS=5*/ SS, /*DC=*/17, /*RST=*/16, /*BUSY=*/4));
 
 Dashboard_NS::Dashboard<GxEPD2_3C<GxEPD2_750c, GxEPD2_750c::HEIGHT>> dashboard(display);
