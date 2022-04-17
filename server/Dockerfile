@@ -15,13 +15,21 @@ RUN  apt-get update \
   && wget --quiet https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh -O /usr/sbin/wait-for-it.sh \
   && chmod +x /usr/sbin/wait-for-it.sh
 
-COPY package.json yarn.lock /
+RUN addgroup --system edashuser \
+  && adduser --system edashuser --ingroup edashuser \
+  && chown -R edashuser:edashuser /home/edashuser
+USER edashuser
+WORKDIR /home/edashuser
+
+COPY --chown=edashuser:edashuser yarn.lock package.json ./
 
 # TODO: Typescript compile for production env
 # RUN yarn install --production
 RUN yarn install
 
-COPY . /
+
+COPY --chown=edashuser:edashuser . ./
+
 EXPOSE 8000
 ENV ENV production
 RUN npm run build
