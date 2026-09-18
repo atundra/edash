@@ -16,15 +16,18 @@
  */
 #include <ESP_WiFiManager.h>
 
-GxEPD2_3C<GxEPD2_750c_Z90, GxEPD2_750c_Z90::HEIGHT / 2> display(GxEPD2_750c_Z90(/*CS=*/ 15, /*DC=*/ 27, /*RST=*/ 26, /*BUSY=*/ 25)); // GDEH075Z90 880x528, SSD1677
+GxEPD2_3C<GxEPD2_750c_Z90, GxEPD2_750c_Z90::HEIGHT / 5> display(GxEPD2_750c_Z90(/*CS=*/ 15, /*DC=*/ 27, /*RST=*/ 26, /*BUSY=*/ 25)); // GDEH075Z90 880x528, SSD1677
 
-Dashboard_NS::Dashboard<GxEPD2_3C<GxEPD2_750c_Z90, GxEPD2_750c_Z90::HEIGHT / 2>> dashboard(display);
+Dashboard_NS::Dashboard<GxEPD2_3C<GxEPD2_750c_Z90, GxEPD2_750c_Z90::HEIGHT / 5>> dashboard(display);
+
+constexpr size_t BITMAP_SIZE = GxEPD2_750c_Z90::WIDTH * GxEPD2_750c_Z90::HEIGHT / 8;
+
+static uint8_t bitmap[BITMAP_SIZE];
 
 // TODO move to some class or whatever and add sending parameters
-String httpGet(const String &url, const char* CAcert = 0)
+void httpGet(const String &url, const char* CAcert = 0)
 {
   HTTPClient httpClient;
-  String retval;
 
   Serial.print("[HTTP] begin...\n");
   if (CAcert == 0) {
@@ -42,9 +45,51 @@ String httpGet(const String &url, const char* CAcert = 0)
   {
     Serial.printf("[HTTP] GET... code: %d\n", httpCode);
 
+    int contentLength = httpClient.getSize();
+
+    Serial.printf("Content-Length: %d\n", contentLength);
+
     if (httpCode == HTTP_CODE_OK)
     {
-      retval = httpClient.getString();
+      if (contentLength != BITMAP_SIZE) {
+          Serial.printf(
+              "Unexpected bitmap size: %d, expected %u\n",
+              contentLength,
+              (unsigned)BITMAP_SIZE
+          );
+      }
+
+        WiFiClient *stream = httpClient.getStreamPtr();
+
+        size_t received = 0;
+
+        while (received < BITMAP_SIZE) {
+          size_t available = stream->available();
+
+          if (available > 0) {
+            size_t remaining = BITMAP_SIZE - received;
+            size_t toRead = min(available, remaining);
+
+            size_t n = stream->readBytes(
+                bitmap + received,
+                toRead
+            );
+
+            if (n == 0) {
+                Serial.println("Read failed");
+            }
+
+            received += n;
+          } else {
+              if (!httpClient.connected()) {
+                  Serial.println("Connection closed prematurely");
+                  break;
+              }
+
+              delay(1);
+          }
+      }
+
     }
   }
   else
@@ -53,7 +98,6 @@ String httpGet(const String &url, const char* CAcert = 0)
   }
 
   httpClient.end();
-  return retval;
 }
 
 namespace SetupRoutine
@@ -252,10 +296,10 @@ void loop()
   Serial.println(id);
 
   delay(20000);
-  auto payloadUrl = "http://bots.pashutk.ru:8000/api/screen/" + id;
+  // auto payloadUrl = "http://bots.pashutk.ru:8000/api/screen/" + id;
+  String payloadUrl = "http://192.168.1.191:8000/api/layout.bin?width=880&height=528";
   Serial.println("Loading payload, url: " + payloadUrl);
-  payload = httpGet(payloadUrl);
-  // payload = httpGet("http://bots.pashutk.ru:8000/api/layout.bin?width=640&height=384");
+  httpGet(payloadUrl);
   dashboard.GetColors();
-  dashboard.DrawPayload(payload);
+  dashboard.DrawPayload(bitmap);
 }

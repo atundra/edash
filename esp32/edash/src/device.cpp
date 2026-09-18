@@ -9,14 +9,13 @@
 
 // uncomment next line to use HSPI for EPD (and VSPI for SD), e.g. with Waveshare ESP32 Driver Board
 #define USE_HSPI_FOR_EPD
-// Note for Waveshare ESP32: on compile "HARDWARE: ESP32 240MHz, 320KB RAM, 4MB Flash" is reported, while there should be more RAM Waveshare ESP32.
 
 #if defined(USE_HSPI_FOR_EPD)
 SPIClass hspi(HSPI);
 #endif
 
-// GxEPD2_750c_Z90::HEIGHT / 2 - reduces page_height to fit in RAM
-template class Dashboard_NS::Dashboard<GxEPD2_3C<GxEPD2_750c_Z90, GxEPD2_750c_Z90::HEIGHT / 2>>;
+// GxEPD2_750c_Z90::HEIGHT / 5 - reduces page_height to fit in RAM, while having full-size buffer for downloaded bitmap
+template class Dashboard_NS::Dashboard<GxEPD2_3C<GxEPD2_750c_Z90, GxEPD2_750c_Z90::HEIGHT / 5>>;
 
 template <typename T>
 void Dashboard_NS::Dashboard<T>::DrawBitmap(int16_t x, int16_t y, const uint8_t bitmap[], int16_t w, int16_t h, uint16_t color) const
@@ -49,7 +48,7 @@ void Dashboard_NS::Dashboard<T>::Setup() const
 }
 
 template <typename T>
-void Dashboard_NS::Dashboard<T>::DrawPayload(const String &payload) const
+void Dashboard_NS::Dashboard<T>::DrawPayload(const uint8_t payload[]) const
 {
     WiFiUDP ntpUDP;
     NTPClient timeClient(ntpUDP);
@@ -74,8 +73,6 @@ void Dashboard_NS::Dashboard<T>::DrawPayload(const String &payload) const
                   timeClient.getDay(), timeClient.getHours(), timeClient.getMinutes(), timeClient.getSeconds());
 
     Serial.println("Draw HTTP payload");
-    Serial.print("Payload length: ");
-    Serial.println(payload.length());
 
     displayDevice.init(115200);
     displayDevice.setFullWindow();
@@ -84,7 +81,7 @@ void Dashboard_NS::Dashboard<T>::DrawPayload(const String &payload) const
     do
     {
         displayDevice.fillScreen(GxEPD_WHITE);
-        DrawBitmap(0, 0, (unsigned char *)payload.c_str(), displayDevice.epd2.WIDTH, displayDevice.epd2.HEIGHT, GxEPD_BLACK);
+        DrawBitmap(0, 0, payload, displayDevice.epd2.WIDTH, displayDevice.epd2.HEIGHT, GxEPD_BLACK);
 
         char time[5];
         sprintf(time, "%02d:%02d", timeClient.getHours(), timeClient.getMinutes());

@@ -47,7 +47,7 @@ public:
     void Setup() const;
 
 public:
-    void DrawPayload(const String &payload) const;
+    void DrawPayload(const uint8_t payload[]) const;
 };
 
 }; // namespace Dashboard_NS
