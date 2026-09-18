@@ -5,13 +5,16 @@
   "main": "index.js",
   "scripts": {
     "start": "ts-node -P tsconfig.server.json index.ts",
-    "dev": "ts-node-dev onlineWidgetServer.ts",
-    "build": "next build",
+    "dev": "ts-node-dev -P tsconfig.server.json onlineWidgetServer.ts",
+    "build": "NEXT_TELEMETRY_DISABLED=1 next build",
     "typecheck": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": "<17"
+  },
   "devDependencies": {
     "@types/axios": "^0.14.0",
     "@types/cache-manager": "^2.10.2",
@@ -59,7 +62,7 @@
     "passport-custom": "^1.1.1",
     "passport-github": "^1.1.0",
     "pngjs": "^5.0.0",
-    "puppeteer": "^3.0.2",
+    "puppeteer": "^3.0.3",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-final-form": "^6.5.0",
