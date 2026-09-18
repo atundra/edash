@@ -44,6 +44,9 @@ public:
     }
 
 public:
+    void Setup() const;
+
+public:
     void DrawPayload(const String &payload) const;
 };
 

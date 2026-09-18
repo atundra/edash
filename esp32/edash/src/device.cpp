@@ -4,6 +4,19 @@
 #include <Fonts/FreeSansBold18pt7b.h>
 #include <NTPClient.h>
 #include <WiFiUdp.h>
+#include <SPI.h>
+#include <GxEPD2_3C.h>
+
+// uncomment next line to use HSPI for EPD (and VSPI for SD), e.g. with Waveshare ESP32 Driver Board
+#define USE_HSPI_FOR_EPD
+// Note for Waveshare ESP32: on compile "HARDWARE: ESP32 240MHz, 320KB RAM, 4MB Flash" is reported, while there should be more RAM Waveshare ESP32.
+
+#if defined(USE_HSPI_FOR_EPD)
+SPIClass hspi(HSPI);
+#endif
+
+// GxEPD2_750c_Z90::HEIGHT / 2 - reduces page_height to fit in RAM
+template class Dashboard_NS::Dashboard<GxEPD2_3C<GxEPD2_750c_Z90, GxEPD2_750c_Z90::HEIGHT / 2>>;
 
 template <typename T>
 void Dashboard_NS::Dashboard<T>::DrawBitmap(int16_t x, int16_t y, const uint8_t bitmap[], int16_t w, int16_t h, uint16_t color) const
@@ -15,6 +28,24 @@ template <typename T>
 void Dashboard_NS::Dashboard<T>::BetterDrawBitmap(const uint8_t bitmap[]) const
 {
     displayDevice.drawBitmap(0, 0, bitmap, displayDevice.epd2.WIDTH, displayDevice.epd2.HEIGHT, GxEPD_BLACK);
+}
+
+template <typename T>
+void Dashboard_NS::Dashboard<T>::Setup() const
+{
+    #if defined(USE_HSPI_FOR_EPD)
+        hspi.begin(
+            13,  // SCK
+            12,  // MISO (unused)
+            14,  // MOSI
+            15   // SS
+        );
+
+        displayDevice.epd2.selectSPI(
+            hspi,
+            SPISettings(4000000, MSBFIRST, SPI_MODE0)
+        );
+    #endif
 }
 
 template <typename T>

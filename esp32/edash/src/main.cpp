@@ -16,18 +16,22 @@
  */
 #include <ESP_WiFiManager.h>
 
-GxEPD2_3C<GxEPD2_750c, GxEPD2_750c::HEIGHT> display(GxEPD2_750c(/*CS=5*/ SS, /*DC=*/17, /*RST=*/16, /*BUSY=*/4));
+GxEPD2_3C<GxEPD2_750c_Z90, GxEPD2_750c_Z90::HEIGHT / 2> display(GxEPD2_750c_Z90(/*CS=*/ 15, /*DC=*/ 27, /*RST=*/ 26, /*BUSY=*/ 25)); // GDEH075Z90 880x528, SSD1677
 
-Dashboard_NS::Dashboard<GxEPD2_3C<GxEPD2_750c, GxEPD2_750c::HEIGHT>> dashboard(display);
+Dashboard_NS::Dashboard<GxEPD2_3C<GxEPD2_750c_Z90, GxEPD2_750c_Z90::HEIGHT / 2>> dashboard(display);
 
 // TODO move to some class or whatever and add sending parameters
-String httpGet(const String &url)
+String httpGet(const String &url, const char* CAcert = 0)
 {
   HTTPClient httpClient;
   String retval;
 
   Serial.print("[HTTP] begin...\n");
-  httpClient.begin(url);
+  if (CAcert == 0) {
+    httpClient.begin(url);
+  } else {
+    httpClient.begin(url, CAcert);
+  }
 
   Serial.print("[HTTP] GET...\n");
 
@@ -161,6 +165,9 @@ namespace SetupRoutine
 
       Serial.println("Setup routine:: Initialize");
       initialize();
+
+      Serial.println("Setup routine:: Display setup");
+      dashboard.Setup();
 
       Serial.println("Setup routine:: Check WiFi");
       auto wifiErr = checkWiFi();
