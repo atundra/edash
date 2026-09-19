@@ -54,7 +54,7 @@ export const createServer = (db: Db) => (
     )
   );
 
-export const listen = (server: Application, port: string | number): TE.TaskEither<Error, Application> =>
+export const listen = (server: Application, port: number): TE.TaskEither<Error, Application> =>
   TE.tryCatch(
     () =>
       new Promise((resolve, reject) => {
